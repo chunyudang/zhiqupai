@@ -209,7 +209,7 @@
     "id": 1,
     "phone": "138****5678",
     "nickname": "小明",
-    "avatar": "http://内网IP:3000/uploads/avatars/abc.jpg",
+    "avatar": "/uploads/avatars/abc.jpg",
     "pointsBalance": 1280,
     "createdAt": "2026-06-01T10:30:00Z"
   }
@@ -250,9 +250,11 @@
 ```
 ① uni.chooseImage → 选图
 ② uni.uploadFile → POST /upload/avatar (multipart)
-③ 返回头像 URL
-④ PUT /users/profile { "avatar": "头像URL" }
+③ 返回相对路径 URL（如 /uploads/avatars/xxx.jpg）
+④ PUT /users/profile { "avatar": "返回的相对路径URL" }
 ```
+
+> 头像 URL 统一使用相对路径格式，客户端通过 `baseURL + avatar` 拼接完整访问地址，部署时无需修改存储逻辑。
 
 ### 3.4 注销账号 `/users/account`
 
@@ -339,12 +341,32 @@
       "bestScore": null,
       "bestTime": null,
       "completedAt": null
+    },
+    {
+      "id": 4,
+      "levelNo": 4,
+      "name": "科学挑战",
+      "difficulty": "hard",
+      "status": "in_progress",
+      "bestScore": 3,
+      "bestTime": 55,
+      "completedAt": null
+    },
+    {
+      "id": 5,
+      "levelNo": 5,
+      "name": "科学大师",
+      "difficulty": "hard",
+      "status": "failed",
+      "bestScore": 3,
+      "bestTime": 52,
+      "completedAt": null
     }
   ]
 }
 ```
 
-**关卡状态：** `locked`（锁定） / `available`（可挑战） / `passed`（已通关）
+**关卡状态：** `locked`（锁定） / `available`（可挑战） / `in_progress`（进行中） / `passed`（已通关） / `failed`（未通过）
 
 ### 4.3 开始答题 `/quiz/start`
 
