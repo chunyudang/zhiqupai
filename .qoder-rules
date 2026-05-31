@@ -1,0 +1,45 @@
+// ============================================================
+// 识趣派（ShiQuPai）- Qoder 项目规则
+// ============================================================
+
+// --- 语言规则 ---
+// 与用户交流使用中文
+// 代码注释使用中文
+// Commit 信息使用中文
+// 变量命名使用英文（camelCase）
+
+// --- 代码结构规则 ---
+// NestJS 模块必须包含四件套：Module / Controller / Service / DTO
+// Controller 只做参数校验和路由分发，业务逻辑在 Service 中
+// 所有 API 返回统一格式：{ code: number, message: string, data: any }
+// C端 API 路径前缀：/api/v1/
+// 后台 API 路径前缀：/api/admin/v1/
+// Prisma Schema 变更后必须运行 `npx prisma db push`
+// 数据库字段命名使用 snake_case，API 字段使用 camelCase（Prisma 自动转换）
+
+// --- 安全规则 ---
+// 密码必须使用 bcrypt 哈希存储，禁止明文
+// 手机号必须哈希脱敏存储（SHA-256），API 返回必须脱敏（如 138****5678）
+// accessToken 仅存应用内存，不入本地存储
+// refreshToken 通过 uni-app 本地存储 API（uni.setStorageSync）
+// JWT secret 从环境变量读取，不硬编码
+// 所有用户输入必须通过 DTO 验证管道（class-validator）
+// 答题接口必须校验 time_taken 合法性（3-20秒/题）
+
+// --- 文件规则 ---
+// 不在 docs/ 之外创建 .md 文档文件
+// 不要创建 README.md（除非用户明确要求）
+// 不要创建 .env 文件提交到版本控制
+
+// --- 测试规则 ---
+// 每个 NestJS 模块应包含对应的 .spec.ts 测试文件
+// 核心业务逻辑（积分计算、状态机）必须有单元测试
+
+// --- 代码风格 ---
+// 使用单引号
+// 行尾不加分号（Prettier 默认）
+// 缩进使用 2 空格
+// 行宽 100 字符
+// 优先使用 async/await，避免 callback
+// DTO 使用 class-validator 装饰器做校验
+// Prisma 查询使用 select 限制返回字段
