@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ========== 用户相关 ==========
+
+model User {
+  id             Int       @id @default(autoincrement())
+  phone          String    @unique // SHA-256 哈希存储
+  phoneLastFour  String    // 手机号后4位，用于脱敏展示
+  nickname       String    @default("")
+  avatar         String    @default("")
+  passwordHash   String
+  status         String    @default("active") // active | banned | deleted
+  pointsBalance  Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userTokens   UserToken[]
+  userAnswers  UserAnswer[]
+  userProgress UserProgress[]
+  points       Point[]
+  checkIns     CheckIn[]
+  messages     Message[]
+  comments     Comment[]
+  likes        Like[]
+
+  @@map("users")
+}
+
+model UserToken {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  refreshToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_tokens")
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  role         String   @default("admin") // admin | super_admin (预留 RBAC)
+  status       String   @default("active") // active | disabled
+  createdAt    DateTime @default(now())
+
+  @@map("admins")
+}
+
+// ========== 答题相关 ==========
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  nameEn      String   @default("")
+  icon        String   @default("")
+  description String   @default("")
+  sortOrder   Int      @default(0)
+  status      String   @default("active") // active | inactive
+
+  createdAt DateTime @default(now())
+
+  levels        Level[]
+  userProgress  UserProgress[]
+
+  @@map("categories")
+}
+
+model Level {
+  id         Int    @id @default(autoincrement())
+  categoryId Int
+  levelNo    Int    // 关卡序号 1-5
+  name       String
+  difficulty String @default("easy") // easy | medium | hard
+  passScore  Int    @default(4) // 通关需要答对数
+  status     String @default("active") // active | inactive
+
+  createdAt DateTime @default(now())
+
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  userAnswers  UserAnswer[]
+  userProgress UserProgress[]
+
+  @@unique([categoryId, levelNo])
+  @@map("levels")
+}
+
+model Question {
+  id            Int    @id @default(autoincrement())
+  levelId       Int
+  questionType  String @default("choice") // 题型：choice (选择题)
+  content       String // 题目内容
+  options       String // JSON 数组字符串，如 '["A.选项1","B.选项2",...]'
+  correctAnswer String // 正确答案标识，如 "A" | "B" | "C" | "D"
+  explanation   String @default("") // 答案解析
+  sortOrder     Int    @default(0)
+  status        String @default("active") // active | inactive
+
+  createdAt DateTime @default(now())
+
+  level       Level        @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  userAnswers UserAnswer[]
+  comments    Comment[]
+  likes       Like[]
+
+  @@map("questions")
+}
+
+model UserAnswer {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  questionId     Int
+  levelId        Int
+  attemptId      String   // UUID，同一次答题的标识
+  selectedAnswer String   // 用户选择的答案
+  isCorrect      Int      @default(0) // 0=错误, 1=正确
+  timeTaken      Int      @default(0) // 答题用时（秒）
+  answeredAt     DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  level    Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([userId, levelId])
+  @@map("user_answers")
+}
+
+model UserProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  categoryId  Int
+  levelId     Int
+  status      String    @default("available") // available | in_progress | passed | locked
+  bestScore   Int       @default(0)
+  bestTime    Int       @default(0) // 最佳用时（秒）
+  attempts    Int       @default(0)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  level    Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, levelId])
+  @@map("user_progress")
+}
+
+// ========== 积分与签到 ==========
+
+model Point {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  amount       Int      // 正数为获得，负数为消耗
+  balanceAfter Int      // 交易后余额
+  source       String   // quiz | checkin | makeup | admin
+  referenceId  String   @default("") // 关联的业务 ID（如 attemptId）
+  description  String   @default("")
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("points")
+}
+
+model CheckIn {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  checkInDate   String   // 日期字符串 YYYY-MM-DD
+  pointsEarned  Int      @default(0)
+  isMakeup      Int      @default(0) // 0=正常签到, 1=补签
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, checkInDate])
+  @@map("check_ins")
+}
+
+// ========== 消息 ==========
+
+model Message {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  type          String   // system | my_comment | my_like
+  title         String
+  content       String
+  referenceType String   @default("") // 关联类型（预留）
+  referenceId   String   @default("") // 关联 ID（预留）
+  isRead        Int      @default(0) // 0=未读, 1=已读
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime // 过期时间（默认30天）
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, isRead])
+  @@map("messages")
+}
+
+// ========== 预留表 ==========
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  questionId Int
+  content    String
+  parentId   Int?
+  status     String   @default("active") // active | deleted
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Like {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  questionId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@map("likes")
+}
+
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  configKey   String   @unique
+  configValue String   // JSON 字符串
+  description String   @default("")
+  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+
+  @@map("system_configs")
+}
