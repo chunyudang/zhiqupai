@@ -16,7 +16,7 @@ description: 识趣派 uni-app (Vue3) 微信小程序页面与组件的开发规
   </view>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onLoad, onShow } from '@dcloudio/uni-app'
 
 // 页面数据
@@ -114,9 +114,9 @@ async function initData() {
 
 ## API 调用模式
 
-### 基础请求封装（api/request.js）
+### 基础请求封装（api/request.ts）
 
-```javascript
+```typescript
 import { getToken, clearToken, setToken } from '@/utils/token'
 
 const BASE_URL = 'http://[内网IP]:3000/api/v1'
@@ -214,13 +214,18 @@ export const authApi = {
 }
 ```
 
-## Token 管理（utils/token.js）
+## Token 管理（utils/token.ts）
 
-```javascript
+```typescript
 const TOKEN_KEY = 'shiqupai_tokens'
 const USER_KEY = 'shiqupai_user'
 
-export function getToken() {
+interface Tokens {
+  accessToken?: string
+  refreshToken?: string
+}
+
+export function getToken(): Tokens {
   try {
     return uni.getStorageSync(TOKEN_KEY) || {}
   } catch {
@@ -228,23 +233,23 @@ export function getToken() {
   }
 }
 
-export function setToken(accessToken, refreshToken) {
-  const tokens = { accessToken, refreshToken }
+export function setToken(accessToken: string, refreshToken: string): void {
+  const tokens: Tokens = { accessToken, refreshToken }
   uni.setStorageSync(TOKEN_KEY, tokens)
 }
 
-export function clearToken() {
+export function clearToken(): void {
   try {
     uni.removeStorageSync(TOKEN_KEY)
     uni.removeStorageSync(USER_KEY)
   } catch {}
 }
 
-export function saveUser(user) {
+export function saveUser(user: Record<string, unknown>): void {
   uni.setStorageSync(USER_KEY, user)
 }
 
-export function getUser() {
+export function getUser(): Record<string, unknown> | null {
   try {
     return uni.getStorageSync(USER_KEY) || null
   } catch {

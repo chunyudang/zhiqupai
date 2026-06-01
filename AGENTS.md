@@ -356,6 +356,20 @@ common/
     └── validation.pipe.ts
 ```
 
+### JavaScript/TypeScript 编码规范（补充）
+
+### 通用规范
+- **ECMAScript 标准**：全栈采用 **ES6 (ECMAScript 2015)** 标准开发，优先使用 `const`/`let`、箭头函数、模板字符串、解构赋值、Promise/async-await、类(class)、模块(import/export) 等 ES6 特性
+- **类型系统**：全栈 TypeScript，禁止使用 `any` 类型
+
+### 客户端（client/）uni-app 规范
+- Vue 组件统一使用 **`<script setup lang="ts">`** 组合式 API 写法
+- 生命周期使用 `@dcloudio/uni-app` 提供的 `onLoad`、`onShow` 等 Hooks
+- API 层请求封装使用 `.ts` 文件，类型定义单独维护
+
+### 后端（server/）NestJS 规范
+每个业务模块必须包含：`.module.ts` + `.controller.ts` + `.service.ts` + DTO + Prisma 调用
+
 ### Git 分支策略
 - `main`：保护分支
 - `feature/*`：功能开发分支
