@@ -1,6 +1,6 @@
 // 请求封装 + 拦截器
 
-const BASE_URL = '' // 微信小程序中为空字符串，走 manifest.json 配置的域名
+const BASE_URL = 'http://localhost:3000' // 微信小程序中为空字符串，走 manifest.json 配置的域名
 
 // accessToken 仅存内存
 let accessToken = null
