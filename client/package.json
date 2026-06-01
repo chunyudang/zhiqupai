@@ -1,0 +1,9 @@
+{
+  "name": "shiqupai-client",
+  "version": "1.0.0",
+  "description": "识趣派 — 微信小程序客户端",
+  "dependencies": {},
+  "devDependencies": {
+    "sass": "^1.69.0"
+  }
+}

@@ -363,7 +363,7 @@ common/
 - **类型系统**：全栈 TypeScript，禁止使用 `any` 类型
 
 ### 客户端（client/）uni-app 规范
-- Vue 组件统一使用 **`<script setup lang="ts">`** 组合式 API 写法
+- Vue 组件统一使用 **`<script setup>`** 组合式 API 写法（ES6 JavaScript，不使用 TypeScript）
 - 生命周期使用 `@dcloudio/uni-app` 提供的 `onLoad`、`onShow` 等 Hooks
 - API 层请求封装使用 `.js` 文件
 
