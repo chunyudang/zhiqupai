@@ -128,7 +128,10 @@ const retryLevel = () => {
 }
 
 const goNextLevel = () => {
-  goHome()
+  // Navigate to levels page of this category for next level selection
+  uni.redirectTo({
+    url: `/pages/quiz/levels?categoryId=${categoryId.value}&categoryName=${encodeURIComponent(categoryName.value)}`,
+  })
 }
 
 onLoad(() => {

@@ -18,6 +18,10 @@
           @click="switchTab(tab.key)"
         >
           <text>{{ tab.label }}</text>
+          <view v-if="tabUnreadCount(tab.key) > 0" class="tab-badge">{{ tabUnreadCount(tab.key) > 99 ? '99+' : tabUnreadCount(tab.key) }}</view>
+        </view>
+        <view class="tab-action">
+          <text class="mark-all-btn" @click="doMarkAllRead">全部已读</text>
         </view>
       </view>
 
@@ -59,7 +63,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getMessages, markRead } from '../../api/messages.js'
+import { getMessages, markRead, markAllRead, getUnreadCount } from '../../api/messages.js'
 import Skeleton from '../../components/Skeleton.vue'
 import EmptyState from '../../components/EmptyState.vue'
 
@@ -73,6 +77,12 @@ const isLoggedIn = ref(false)
 const currentTab = ref('system')
 const messages = ref([])
 const loading = ref(false)
+const unreadCounts = ref({ system: 0, my_comment: 0, my_like: 0 })
+
+const tabUnreadCount = (key) => {
+  const val = unreadCounts.value[key]
+  return val || 0
+}
 
 const switchTab = (key) => {
   currentTab.value = key
@@ -92,15 +102,52 @@ const loadMessages = async () => {
   }
 }
 
+const loadUnreadCounts = async () => {
+  try {
+    const data = await getUnreadCount()
+    if (data) {
+      unreadCounts.value = {
+        system: data.system || 0,
+        my_comment: data.my_comment || 0,
+        my_like: data.my_like || 0,
+      }
+    }
+  } catch (err) {
+    console.error('[Messages] loadUnreadCounts error:', err)
+  }
+}
+
 const handleMsgClick = async (msg) => {
   if (!msg.isRead) {
     try {
       await markRead(msg.id)
       msg.isRead = true
+      // Update unread count
+      loadUnreadCounts()
     } catch (err) {
       console.error('[Messages] markRead error:', err)
     }
   }
+}
+
+const doMarkAllRead = () => {
+  if (messages.value.length === 0) return
+  uni.showModal({
+    title: '提示',
+    content: '确定将所有消息标记为已读吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await markAllRead()
+          messages.value.forEach((m) => { m.isRead = true })
+          uni.showToast({ title: '已全部标为已读', icon: 'success' })
+          loadUnreadCounts()
+        } catch (err) {
+          console.error('[Messages] markAllRead error:', err)
+        }
+      }
+    },
+  })
 }
 
 const formatTime = (timeStr) => {
@@ -126,6 +173,7 @@ onShow(() => {
   isLoggedIn.value = !!uni.getStorageSync('isLoggedIn')
   if (isLoggedIn.value) {
     loadMessages()
+    loadUnreadCounts()
   }
 })
 </script>
@@ -174,6 +222,7 @@ onShow(() => {
 /* Tabs */
 .tab-bar {
   display: flex;
+  align-items: center;
   background: #FFFFFF;
   padding: 0 24rpx;
 }
@@ -202,6 +251,32 @@ onShow(() => {
   height: 4rpx;
   background: #FF6B35;
   border-radius: 2rpx;
+}
+
+.tab-badge {
+  position: absolute;
+  top: 14rpx;
+  right: 10rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #fff;
+  background-color: #FF4D4F;
+  border-radius: 16rpx;
+  padding: 0 6rpx;
+}
+
+.tab-action {
+  flex-shrink: 0;
+  padding-left: 16rpx;
+}
+
+.mark-all-btn {
+  font-size: 26rpx;
+  color: #FF6B35;
+  padding: 8rpx 0;
 }
 
 /* Loading */

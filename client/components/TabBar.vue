@@ -15,17 +15,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 
-interface TabItem {
-  text: string
-  icon: string
-  pagePath: string
-  badge?: number
-  isPlaceholder?: boolean
-}
-
-const tabs: TabItem[] = [
+const tabs = [
   { text: '首页', icon: '🏠', pagePath: '/pages/index/index' },
   { text: '竞猜', icon: '❓', pagePath: '', isPlaceholder: true },
   { text: '商城', icon: '🛒', pagePath: '', isPlaceholder: true },
@@ -35,7 +27,7 @@ const tabs: TabItem[] = [
 
 const currentIndex = ref(0)
 
-const switchTab = (index: number) => {
+const switchTab = (index) => {
   const tab = tabs[index]
   if (tab.isPlaceholder) {
     uni.showToast({ title: '功能完善中……', icon: 'none', duration: 2000 })
@@ -44,14 +36,6 @@ const switchTab = (index: number) => {
   currentIndex.value = index
   uni.switchTab({ url: tab.pagePath })
 }
-
-// Sync with actual page
-watch(
-  () => currentIndex.value,
-  () => {
-    // Could sync with current route
-  }
-)
 </script>
 
 <style scoped>

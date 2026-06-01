@@ -77,6 +77,7 @@
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getProgress } from '../../api/quiz.js'
+import { getProfile } from '../../api/user.js'
 import { clearAuth } from '../../api/request.js'
 
 const isLoggedIn = ref(false)
@@ -92,14 +93,13 @@ const loadProfile = async () => {
   isLoggedIn.value = !!stored
   if (!isLoggedIn.value) return
 
-  // Load user info from storage
+  // Load user info from API
   try {
-    const userStr = uni.getStorageSync('userInfo')
-    if (userStr) {
-      userInfo.value = JSON.parse(userStr)
-    }
-    avatarText.value = (userInfo.value.nickname || '用')[0] || '?'
-  } catch {
+    const profile = await getProfile()
+    userInfo.value = profile || {}
+    avatarText.value = (profile.nickname || '用')[0] || '?'
+  } catch (err) {
+    console.error('[Profile] getProfile error:', err)
     avatarText.value = '?'
   }
 

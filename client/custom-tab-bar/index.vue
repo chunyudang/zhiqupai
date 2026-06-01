@@ -9,13 +9,16 @@
     >
       <view class="tab-icon">{{ tab.icon }}</view>
       <view class="tab-text">{{ tab.text }}</view>
+      <!-- Unread badge for messages tab -->
+      <view v-if="index === 3 && unreadTotal > 0" class="tab-badge">{{ unreadTotal > 99 ? '99+' : unreadTotal }}</view>
       <view v-if="tab.badge" class="tab-badge">{{ tab.badge > 99 ? '99+' : tab.badge }}</view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { getUnreadCount } from '../api/messages.js'
 
 const tabs = [
   { text: '首页', icon: '🏠', pagePath: '/pages/index/index', badge: 0 },
@@ -26,6 +29,7 @@ const tabs = [
 ]
 
 const selected = ref(0)
+const unreadTotal = ref(0)
 
 const switchTab = (index) => {
   const tab = tabs[index]
@@ -36,6 +40,29 @@ const switchTab = (index) => {
   selected.value = index
   uni.switchTab({ url: tab.pagePath })
 }
+
+const loadUnreadCount = async () => {
+  try {
+    const data = await getUnreadCount()
+    if (data) {
+      unreadTotal.value = (data.total || 0) + (data.system || 0) + (data.my_comment || 0) + (data.my_like || 0)
+    }
+  } catch {
+    // Silently ignore errors in tab-bar
+  }
+}
+
+// Load unread count when component is shown
+// Use a watcher on selected to refresh when switching to message tab
+watch(selected, (val) => {
+  if (val === 3) {
+    // Messages tab was selected, refresh unread count
+    loadUnreadCount()
+  }
+})
+
+// Also load initially
+loadUnreadCount()
 </script>
 
 <style scoped>
