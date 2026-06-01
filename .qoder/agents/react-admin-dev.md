@@ -33,7 +33,7 @@ src/
 ```
 
 ## 后台 API 路由
-所有后台 API 以 `/api/admin/v1/` 为前缀：
+所有后台 API 以 `/api/admin/v1/` 为前缀，以下为相对路径：
 - `POST /auth/login` - 管理员登录
 - `GET /auth/profile` - 管理员信息
 - `GET/POST /categories` - 学科列表/新增
@@ -50,12 +50,13 @@ src/
 - `GET /dashboard` - 运营数据看板
 
 ## 开发规范
-1. 使用 Ant Design 5 的 Table / Form / Modal 等组件
-2. 列表页使用 ProTable 或标准 Table + 搜索表单
-3. 表单校验使用 Ant Design Form 的 rules
-4. Axios 封装统一处理 Token 和错误
-5. 管理页面需登录鉴权，未登录跳转 Login 页面
-6. MVP 阶段固定管理员账号，通过种子脚本初始化
+1. 优先使用 **Function Component + Hooks** 方式编写组件，不使用 Class Component
+2. 使用 Ant Design 5 的 Table / Form / Modal 等组件
+3. 列表页使用 ProTable 或标准 Table + 搜索表单
+4. 表单校验使用 Ant Design Form 的 rules
+5. Axios 封装统一处理 Token 和错误
+6. 管理页面需登录鉴权，未登录跳转 Login 页面
+7. MVP 阶段固定管理员账号，通过种子脚本初始化
 
 ## 常用命令
 ```bash

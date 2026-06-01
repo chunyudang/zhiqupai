@@ -45,7 +45,7 @@ tools: Read, Grep, Glob, Bash
 ### 5. 业务规则检查（识趣派特有）
 - [ ] 答题计分：每题+15、通关+50、通关条件≥4/6、重复0分
 - [ ] 签到：连续递增规则、自然月/断签重置、补签50分/5次
-- [ ] 关卡状态机：LOCKED → AVAILABLE → IN_PROGRESS → PASSED/FAILED
+- [ ] 关卡状态机：locked → available → in_progress → passed/failed
 - [ ] 积分事务：user_answers + user_progress + points 三表原子写入
 
 ## 审查输出格式

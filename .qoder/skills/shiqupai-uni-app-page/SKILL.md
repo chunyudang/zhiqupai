@@ -114,9 +114,9 @@ async function initData() {
 
 ## API 调用模式
 
-### 基础请求封装（api/request.ts）
+### 基础请求封装（api/request.js）
 
-```typescript
+```javascript
 import { getToken, clearToken, setToken } from '@/utils/token'
 
 const BASE_URL = 'http://[内网IP]:3000/api/v1'
@@ -214,9 +214,9 @@ export const authApi = {
 }
 ```
 
-## Token 管理（utils/token.ts）
+## Token 管理（utils/token.js）
 
-```typescript
+```javascript
 const TOKEN_KEY = 'shiqupai_tokens'
 const USER_KEY = 'shiqupai_user'
 

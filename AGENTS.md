@@ -217,7 +217,7 @@ shiqupai/
 - 各学科关卡独立计算
 
 ### 关卡状态机
-`LOCKED` → `AVAILABLE` → `IN_PROGRESS` → `PASSED`（解锁下一关）/ `FAILED`（回退至 `AVAILABLE`）
+`locked` → `available` → `in_progress` → `passed`（解锁下一关）/ `failed`（回退至 `available`）
 
 ### 积分事务
 Prisma 事务（`prisma.$transaction`），3模型原子写入：`user_answers` + `user_progress` + `points`
@@ -365,10 +365,16 @@ common/
 ### 客户端（client/）uni-app 规范
 - Vue 组件统一使用 **`<script setup lang="ts">`** 组合式 API 写法
 - 生命周期使用 `@dcloudio/uni-app` 提供的 `onLoad`、`onShow` 等 Hooks
-- API 层请求封装使用 `.ts` 文件，类型定义单独维护
+- API 层请求封装使用 `.js` 文件
 
 ### 后端（server/）NestJS 规范
 每个业务模块必须包含：`.module.ts` + `.controller.ts` + `.service.ts` + DTO + Prisma 调用
+
+### 后台管理（admin/）React 规范
+- 优先使用 **Function Component + Hooks** 方式编写组件，不使用 Class Component
+- 状态管理使用 React 内置 Hooks（`useState`、`useEffect`、`useCallback`、`useMemo` 等）
+- 自定义逻辑抽取为自定义 Hooks，放置在 `hooks/` 目录
+- 页面组件按目录组织，每个页面一个目录（如 `pages/Users/`），默认导出
 
 ### Git 分支策略
 - `main`：保护分支

@@ -419,7 +419,7 @@ A-01 学科选择页 → A-02 关卡选择页 → A-03 答题进行页 → A-04 
 | `categories` | 学科表 | id, name, name_en, icon, description, sort_order, status |
 | `levels` | 关卡表 | id, category_id, level_no, name, difficulty, status |
 | `questions` | 题目表 | id, level_id, question_type(单选), content, options(JSON), correct_answer, explanation, sort_order |
-| `user_answers` | 答题记录表 | id, user_id, question_id, level_id, selected_answer, is_correct, answered_at |
+| `user_answers` | 答题记录表 | id, user_id, question_id, level_id, attempt_id, selected_answer, is_correct, answered_at |
 | `user_progress` | 用户进度表 | id, user_id, category_id, level_id, status(可挑战/已通关), best_score, best_time, attempts, completed_at |
 
 ### 8.3 积分与签到相关

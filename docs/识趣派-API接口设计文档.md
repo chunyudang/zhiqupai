@@ -665,37 +665,37 @@
 
 | # | Method | URL | 说明 | 需鉴权 |
 |---|--------|-----|------|--------|
-| 1 | POST | `/admin/auth/login` | 管理员登录 | 否 |
-| 2 | GET | `/admin/auth/profile` | 管理员信息 | 是 |
+| 1 | POST | `/auth/login` | 管理员登录 | 否 |
+| 2 | GET | `/auth/profile` | 管理员信息 | 是 |
 | **学科管理** |||||
-| 3 | GET | `/admin/categories` | 学科列表 | 是 |
-| 4 | POST | `/admin/categories` | 新增学科 | 是 |
-| 5 | PUT | `/admin/categories/:id` | 编辑学科 | 是 |
-| 6 | DELETE | `/admin/categories/:id` | 删除学科 | 是 |
+| 3 | GET | `/categories` | 学科列表 | 是 |
+| 4 | POST | `/categories` | 新增学科 | 是 |
+| 5 | PUT | `/categories/:id` | 编辑学科 | 是 |
+| 6 | DELETE | `/categories/:id` | 删除学科 | 是 |
 | **关卡管理** |||||
-| 7 | GET | `/admin/levels` | 关卡列表 | 是 |
-| 8 | POST | `/admin/levels` | 新增关卡 | 是 |
-| 9 | PUT | `/admin/levels/:id` | 编辑关卡 | 是 |
-| 10 | DELETE | `/admin/levels/:id` | 删除关卡 | 是 |
+| 7 | GET | `/levels` | 关卡列表 | 是 |
+| 8 | POST | `/levels` | 新增关卡 | 是 |
+| 9 | PUT | `/levels/:id` | 编辑关卡 | 是 |
+| 10 | DELETE | `/levels/:id` | 删除关卡 | 是 |
 | **题目管理** |||||
-| 11 | GET | `/admin/questions` | 题目列表（分页） | 是 |
-| 12 | POST | `/admin/questions` | 新增题目 | 是 |
-| 13 | PUT | `/admin/questions/:id` | 编辑题目 | 是 |
-| 14 | DELETE | `/admin/questions/:id` | 删除题目 | 是 |
+| 11 | GET | `/questions` | 题目列表（分页） | 是 |
+| 12 | POST | `/questions` | 新增题目 | 是 |
+| 13 | PUT | `/questions/:id` | 编辑题目 | 是 |
+| 14 | DELETE | `/questions/:id` | 删除题目 | 是 |
 | **用户管理** |||||
-| 15 | GET | `/admin/users` | 用户列表（分页） | 是 |
-| 16 | PUT | `/admin/users/:id/status` | 用户封禁/解封 | 是 |
+| 15 | GET | `/users` | 用户列表（分页） | 是 |
+| 16 | PUT | `/users/:id/status` | 用户封禁/解封 | 是 |
 | **消息推送** |||||
-| 17 | POST | `/admin/messages` | 推送系统消息 | 是 |
+| 17 | POST | `/messages` | 推送系统消息 | 是 |
 | **系统配置** |||||
-| 18 | GET | `/admin/configs` | 配置列表 | 是 |
-| 19 | PUT | `/admin/configs/:key` | 更新配置 | 是 |
+| 18 | GET | `/configs` | 配置列表 | 是 |
+| 19 | PUT | `/configs/:key` | 更新配置 | 是 |
 | **数据看板** |||||
-| 20 | GET | `/admin/dashboard` | 运营数据看板 | 是 |
+| 20 | GET | `/dashboard` | 运营数据看板 | 是 |
 
 ### 8.1 管理员登录
 
-**POST `/admin/auth/login`：**
+**POST `/auth/login`：**
 ```json
 {
   "username": "admin",
@@ -717,7 +717,7 @@
 
 ### 8.2 学科 CRUD
 
-**POST `/admin/categories`（新增）：**
+**POST `/categories`（新增）：**
 ```json
 {
   "name": "科学",
@@ -742,7 +742,7 @@
 }
 ```
 
-**GET `/admin/questions`（列表查询）：**
+**GET `/questions`（列表查询）：**
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | page | number | 默认 1 |
@@ -752,7 +752,7 @@
 
 ### 8.4 用户管理
 
-**PUT `/admin/users/:id/status`：**
+**PUT `/users/:id/status`：**
 ```json
 {
   "status": "banned"
@@ -762,7 +762,7 @@
 
 ### 8.5 消息推送
 
-**POST `/admin/messages`：**
+**POST `/messages`：**
 ```json
 {
   "type": "system",
@@ -773,7 +773,7 @@
 
 ### 8.6 系统配置
 
-**PUT `/admin/configs/:key`：**
+**PUT `/configs/:key`：**
 ```json
 {
   "configValue": {
@@ -785,7 +785,7 @@
 
 ### 8.7 数据看板
 
-**GET `/admin/dashboard`：**
+**GET `/dashboard`：**
 ```json
 {
   "code": 0,

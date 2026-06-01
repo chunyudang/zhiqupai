@@ -49,7 +49,7 @@ npm run build        # 构建
 - 补签消耗50积分/次，月限5次（后台可配置）
 
 ### 关卡状态机
-LOCKED → AVAILABLE → IN_PROGRESS → PASSED / FAILED
+locked → available → in_progress → passed / failed
 
 ### 接口限流
 - login: 5次/分钟
