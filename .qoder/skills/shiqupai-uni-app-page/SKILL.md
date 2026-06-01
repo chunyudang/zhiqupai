@@ -16,7 +16,7 @@ description: 识趣派 uni-app (Vue3) 微信小程序页面与组件的开发规
   </view>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onLoad, onShow } from '@dcloudio/uni-app'
 
 // 页面数据
@@ -85,8 +85,9 @@ async function initData() {
     {"path": "pages/profile/records", "style": {"navigationBarTitleText": "答题记录"}},
     {"path": "pages/profile/points", "style": {"navigationBarTitleText": "积分明细"}},
     {"path": "pages/profile/settings", "style": {"navigationBarTitleText": "设置"}},
-    {"path": "pages/messages/list", "style": {"navigationBarTitleText": "消息"}},
-    {"path": "pages/placeholder/coming-soon", "style": {"navigationBarTitleText": "功能完善中"}}
+    {"path": "pages/messages/index", "style": {"navigationBarTitleText": "消息中心"}},
+    {"path": "pages/placeholder/quiz", "style": {"navigationBarTitleText": "竞猜"}},
+    {"path": "pages/placeholder/shop", "style": {"navigationBarTitleText": "商城"}}
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
@@ -95,165 +96,142 @@ async function initData() {
     "backgroundColor": "#F5F5F5"
   },
   "tabBar": {
-    "color": "#999",
-    "selectedColor": "#333",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "custom": true,
     "list": [
-      {"pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png"},
-      {"pagePath": "pages/placeholder/coming-soon", "text": "竞猜", "iconPath": "static/tab/guess.png", "selectedIconPath": "static/tab/guess-active.png"},
-      {"pagePath": "pages/placeholder/coming-soon", "text": "商城", "iconPath": "static/tab/mall.png", "selectedIconPath": "static/tab/mall-active.png"},
-      {"pagePath": "pages/messages/list", "text": "消息", "iconPath": "static/tab/message.png", "selectedIconPath": "static/tab/message-active.png"},
-      {"pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tab/profile.png", "selectedIconPath": "static/tab/profile-active.png"}
+      {"pagePath": "pages/index/index", "text": "首页"},
+      {"pagePath": "pages/placeholder/quiz", "text": "竞猜"},
+      {"pagePath": "pages/placeholder/shop", "text": "商城"},
+      {"pagePath": "pages/messages/index", "text": "消息"},
+      {"pagePath": "pages/profile/index", "text": "我的"}
     ]
   }
 }
 ```
 
-> 注意：竞猜和商城 Tab 都指向 `placeholder/coming-soon` 页面，该页面显示「功能完善中……」提示。
+> 注意：使用 `"custom": true` 自定义 tabBar，tabBar 组件在 `components/custom-tab-bar/index.vue` 中实现。竞猜和商城 Tab 各自指向独立的占位页面。
 
 ## API 调用模式
 
 ### 基础请求封装（api/request.js）
 
 ```javascript
-import { getToken, clearToken, setToken } from '@/utils/token'
+// 微信小程序端 BASE_URL 为空，由 manifest.json 配置域名
+const BASE_URL = ''
+let accessToken = null
 
-const BASE_URL = 'http://[内网IP]:3000/api/v1'
+const getAccessToken = () => accessToken
+const setAccessToken = (token) => { accessToken = token }
 
-// 是否正在刷新 Token
+// refreshToken 请求队列（防止并发刷新）
 let isRefreshing = false
-let refreshSubscribers = []
+let refreshQueue = []
 
-function onRefreshed(token) {
-  refreshSubscribers.forEach(cb => cb(token))
-  refreshSubscribers = []
-}
+const request = (options) => {
+  const { url, method = 'GET', data, header = {}, needAuth = true } = options
 
-function addRefreshSubscriber(cb) {
-  refreshSubscribers.push(cb)
-}
+  if (needAuth && accessToken) {
+    header['Authorization'] = `Bearer ${accessToken}`
+  }
+  if (!header['Content-Type']) header['Content-Type'] = 'application/json'
 
-export function request(options) {
   return new Promise((resolve, reject) => {
-    const token = getToken().accessToken
-    const header = { 'Content-Type': 'application/json' }
-    if (token) header['Authorization'] = `Bearer ${token}`
-
     uni.request({
-      url: BASE_URL + options.url,
-      method: options.method || 'GET',
-      data: options.data,
-      header,
-      success(res) {
-        if (res.data.code === 0) {
-          resolve(res.data.data)
-        } else if (res.data.code === 10003) {
-          // Token 过期，尝试刷新
-          if (!isRefreshing) {
-            isRefreshing = true
-            refreshToken().then(newToken => {
-              isRefreshing = false
-              onRefreshed(newToken)
-              // 重试原请求
-              options.header = { ...header, 'Authorization': `Bearer ${newToken}` }
-              request(options).then(resolve).catch(reject)
-            }).catch(() => {
-              isRefreshing = false
-              clearToken()
-              uni.reLaunch({ url: '/pages/login/login' })
-            })
-          } else {
-            addRefreshSubscriber(token => {
-              options.header = { ...header, 'Authorization': `Bearer ${token}` }
-              request(options).then(resolve).catch(reject)
-            })
-          }
-        } else {
-          reject(res.data)
+      url: BASE_URL + '/api/v1' + url,
+      method, data, header,
+      success: (res) => {
+        if (res.statusCode === 401 && needAuth) {
+          // Token 过期，刷新后重试
+          handleRefreshToken().then(() => {
+            request(options).then(resolve).catch(reject)
+          })
+          return
         }
+        if (res.data.code === 0) resolve(res.data.data)
+        else reject(new Error(res.data.message || '请求失败'))
       },
-      fail(err) {
-        reject(err)
-      }
+      fail: reject,
     })
   })
 }
 
-async function refreshToken() {
-  const { refreshToken: rt } = getToken()
-  const res = await uni.request({
-    url: BASE_URL + '/auth/refresh',
-    method: 'POST',
-    data: { refreshToken: rt }
-  })
-  const newToken = res.data.data.accessToken
-  setToken(newToken, rt)
-  return newToken
-}
+// GET / POST / PUT / DELETE 快捷方法
+const get = (url, data, needAuth = true) => request({ url, method: 'GET', data, needAuth })
+const post = (url, data, needAuth = true) => request({ url, method: 'POST', data, needAuth })
+const put = (url, data, needAuth = true) => request({ url, method: 'PUT', data, needAuth })
+const del = (url, needAuth = true) => request({ url, method: 'DELETE', needAuth })
+
+export { request, get, post, put, del, getAccessToken, setAccessToken }
 ```
 
 ### 模块 API 文件示例（api/auth.js）
 
 ```javascript
-import { request } from './request'
+import { post, setAccessToken } from './request.js'
 
-export const authApi = {
-  register(data) {
-    return request({ url: '/auth/register', method: 'POST', data })
-  },
-  login(data) {
-    return request({ url: '/auth/login', method: 'POST', data })
-  },
-  refresh(refreshToken) {
-    return request({ url: '/auth/refresh', method: 'POST', data: { refreshToken } })
-  },
-  logout() {
-    return request({ url: '/auth/logout', method: 'POST' })
-  }
+export const register = (phone, password, nickname) => {
+  return post('/auth/register', { phone, password, nickname }, false)
+}
+
+export const login = async (phone, password) => {
+  const data = await post('/auth/login', { phone, password }, false)
+  setAccessToken(data.accessToken)
+  uni.setStorageSync('refreshToken', data.refreshToken)
+  return data
+}
+
+export const refreshToken = (refreshToken) => {
+  return post('/auth/refresh', { refreshToken }, false)
+}
+
+export const logout = () => {
+  return post('/auth/logout')
 }
 ```
 
 ## Token 管理（utils/token.js）
 
 ```javascript
-const TOKEN_KEY = 'shiqupai_tokens'
-const USER_KEY = 'shiqupai_user'
+// 注意：accessToken 仅存内存（通过 api/request.js 管理）
+// refreshToken 通过 uni.setStorageSync 存储
+const REFRESH_TOKEN_KEY = 'refreshToken'
 
-interface Tokens {
-  accessToken?: string
-  refreshToken?: string
-}
-
-export function getToken(): Tokens {
+export function getRefreshToken() {
   try {
-    return uni.getStorageSync(TOKEN_KEY) || {}
+    return uni.getStorageSync(REFRESH_TOKEN_KEY) || null
   } catch {
-    return {}
+    return null
   }
 }
 
-export function setToken(accessToken: string, refreshToken: string): void {
-  const tokens: Tokens = { accessToken, refreshToken }
-  uni.setStorageSync(TOKEN_KEY, tokens)
+export function setRefreshToken(token) {
+  uni.setStorageSync(REFRESH_TOKEN_KEY, token)
 }
 
-export function clearToken(): void {
+export function clearRefreshToken() {
   try {
-    uni.removeStorageSync(TOKEN_KEY)
-    uni.removeStorageSync(USER_KEY)
+    uni.removeStorageSync(REFRESH_TOKEN_KEY)
   } catch {}
 }
 
-export function saveUser(user: Record<string, unknown>): void {
-  uni.setStorageSync(USER_KEY, user)
-}
-
-export function getUser(): Record<string, unknown> | null {
+export async function autoLogin() {
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) return false
   try {
-    return uni.getStorageSync(USER_KEY) || null
+    // 动态引入避免循环依赖
+    const { request, setAccessToken } = await import('../api/request.js')
+    const data = await request({
+      url: '/auth/refresh',
+      method: 'POST',
+      data: { refreshToken },
+      skipAuth: true,
+      skipRefresh: true
+    })
+    setAccessToken(data.accessToken)
+    setRefreshToken(data.refreshToken)
+    return true
   } catch {
-    return null
+    clearRefreshToken()
+    return false
   }
 }
 ```
@@ -286,9 +264,9 @@ export function getUser(): Record<string, unknown> | null {
 - 数据卡片（累计答题/已通关/最高正确率）
 - 功能入口列表
 
-### 预留页面（placeholder/coming-soon.vue）
+### 预留页面（placeholder/quiz.vue & placeholder/shop.vue）
 - 简短的居中提示文案「功能完善中……」
-- 自动返回或提供返回按钮
+- 竞猜和商城各自独立占位页面
 
 ## 全局组件规范
 

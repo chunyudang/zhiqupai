@@ -7,15 +7,13 @@
 </template>
 
 <script setup>
-defineProps<{
-  icon?: string
-  message: string
-  actionText?: string
-}>()
+defineProps({
+  icon: { type: String, default: '📭' },
+  message: { type: String, required: true },
+  actionText: { type: String, default: '' },
+})
 
-const emit = defineEmits<{
-  (e: 'action'): void
-}>()
+const emit = defineEmits(['action'])
 
 const onAction = () => {
   emit('action')

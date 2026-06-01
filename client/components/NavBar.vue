@@ -17,14 +17,12 @@
 <script setup>
 import { ref } from 'vue'
 
-defineProps<{
-  title: string
-  showBack?: boolean
-}>()
+defineProps({
+  title: { type: String, required: true },
+  showBack: { type: Boolean, default: false },
+})
 
-const emit = defineEmits<{
-  (e: 'back'): void
-}>()
+const emit = defineEmits(['back'])
 
 const statusBarHeight = ref(0)
 

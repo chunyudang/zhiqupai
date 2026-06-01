@@ -4,7 +4,7 @@
  * 校验手机号（中国大陆）
  * @returns 错误信息，校验通过返回 null
  */
-const validatePhone = (phone: string): string | null => {
+const validatePhone = (phone) => {
   if (!phone || !phone.trim()) {
     return '请输入手机号'
   }
@@ -18,7 +18,7 @@ const validatePhone = (phone: string): string | null => {
  * 校验密码
  * 规则：6-20位，至少包含字母和数字
  */
-const validatePassword = (password: string): string | null => {
+const validatePassword = (password) => {
   if (!password) {
     return '请输入密码'
   }
@@ -38,7 +38,7 @@ const validatePassword = (password: string): string | null => {
  * 校验昵称
  * 规则：1-16个字符
  */
-const validateNickname = (nickname: string): string | null => {
+const validateNickname = (nickname) => {
   if (!nickname || !nickname.trim()) {
     return '请输入昵称'
   }

@@ -11,32 +11,28 @@ export const getCategories = () => {
 /**
  * 获取关卡列表（含状态）
  */
-export const getLevels = (categoryId: number) => {
+export const getLevels = (categoryId) => {
   return get(`/categories/${categoryId}/levels`)
 }
 
 /**
  * 开始答题
  */
-export const startQuiz = (levelId: number) => {
+export const startQuiz = (levelId) => {
   return post('/quiz/start', { levelId }, true, true)
 }
 
 /**
  * 提交答案
  */
-export const submitQuiz = (attemptId: string, answers: Array<{
-  questionId: number
-  selectedAnswer: string
-  timeTaken: number
-}>) => {
+export const submitQuiz = (attemptId, answers) => {
   return post('/quiz/submit', { attemptId, answers }, true, true)
 }
 
 /**
  * 关卡回顾
  */
-export const getReview = (levelId: number) => {
+export const getReview = (levelId) => {
   return get(`/quiz/review/${levelId}`)
 }
 

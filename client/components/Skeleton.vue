@@ -22,10 +22,10 @@
 </template>
 
 <script setup>
-defineProps<{
-  type?: 'card' | 'list' | 'text'
-  count?: number
-}>()
+defineProps({
+  type: { type: String, default: 'text' },
+  count: { type: Number, default: 3 },
+})
 </script>
 
 <style scoped>

@@ -13,21 +13,19 @@
 <script setup>
 import { ref } from 'vue'
 
-type ToastType = 'success' | 'error' | 'warning' | 'info'
-
 const visible = ref(false)
 const message = ref('')
-const type = ref<ToastType>('info')
-let timer: number | null = null
+const type = ref('info')
+let timer = null
 
-const show = (msg: string, t: ToastType = 'info', duration: number = 2000) => {
+const show = (msg, t = 'info', duration = 2000) => {
   message.value = msg
   type.value = t
   visible.value = true
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
     visible.value = false
-  }, duration) as unknown as number
+  }, duration)
 }
 
 const hide = () => {

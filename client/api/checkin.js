@@ -11,13 +11,13 @@ export const checkin = () => {
 /**
  * 补签
  */
-export const makeupCheckin = (date: string) => {
+export const makeupCheckin = (date) => {
   return post('/checkin/makeup', { date }, true, true)
 }
 
 /**
  * 签到日历
  */
-export const getCalendar = (params?: { month?: string }) => {
+export const getCalendar = (params) => {
   return get('/checkin/calendar', params)
 }

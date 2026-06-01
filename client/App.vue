@@ -1,8 +1,17 @@
 <script setup>
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
+import { autoLogin } from './utils/token.js'
 
-onLaunch(() => {
+onLaunch(async () => {
   console.log('[App] Launch')
+  try {
+    const loggedIn = await autoLogin()
+    uni.setStorageSync('isLoggedIn', loggedIn)
+    console.log('[App] autoLogin result:', loggedIn)
+  } catch (err) {
+    console.error('[App] autoLogin error:', err)
+    uni.setStorageSync('isLoggedIn', false)
+  }
 })
 
 onShow(() => {

@@ -6,14 +6,14 @@ import { setAccessToken, clearAuth, handleRefreshToken } from '../api/request.js
 /**
  * 存储 refreshToken 到本地
  */
-const setRefreshToken = (token: string) => {
+const setRefreshToken = (token) => {
   uni.setStorageSync('refreshToken', token)
 }
 
 /**
  * 获取本地 refreshToken
  */
-const getRefreshToken = (): string | null => {
+const getRefreshToken = () => {
   return uni.getStorageSync('refreshToken') || null
 }
 
@@ -28,7 +28,7 @@ const clearAllTokens = () => {
  * 自动登录：检查 refreshToken 并尝试刷新
  * @returns 是否自动登录成功
  */
-const autoLogin = async (): Promise<boolean> => {
+const autoLogin = async () => {
   const refreshToken = getRefreshToken()
   if (!refreshToken) return false
 

@@ -11,11 +11,6 @@ export const getBalance = () => {
 /**
  * 积分流水
  */
-export const getTransactions = (params?: {
-  page?: number
-  pageSize?: number
-  source?: string
-  month?: string
-}) => {
+export const getTransactions = (params) => {
   return get('/points/transactions', params)
 }

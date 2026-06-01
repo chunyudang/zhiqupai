@@ -4,7 +4,7 @@ import { post, setAccessToken } from './request.js'
 /**
  * 用户注册
  */
-export const register = (phone: string, password: string, nickname?: string) => {
+export const register = (phone, password, nickname) => {
   return post('/auth/register', { phone, password, nickname }, false, true)
 }
 
@@ -12,19 +12,8 @@ export const register = (phone: string, password: string, nickname?: string) => 
  * 用户登录
  * 成功后存储 token
  */
-export const login = async (phone: string, password: string) => {
-  const data = await post<{
-    accessToken: string
-    refreshToken: string
-    expiresIn: number
-    user: {
-      id: number
-      phone: string
-      nickname: string
-      avatar: string | null
-      pointsBalance: number
-    }
-  }>('/auth/login', { phone, password }, false, true)
+export const login = async (phone, password) => {
+  const data = await post('/auth/login', { phone, password }, false, true)
 
   // 存储 token
   setAccessToken(data.accessToken)
@@ -36,8 +25,8 @@ export const login = async (phone: string, password: string) => {
 /**
  * 刷新 Token
  */
-export const refreshToken = (refreshToken: string) => {
-  return post<{ accessToken: string }>('/auth/refresh', { refreshToken }, false)
+export const refreshToken = (refreshToken) => {
+  return post('/auth/refresh', { refreshToken }, false)
 }
 
 /**

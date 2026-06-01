@@ -1,37 +1,21 @@
 // 请求封装 + 拦截器
-// baseURL 从 manifest.json 或环境变量获取
 
 const BASE_URL = '' // 微信小程序中为空字符串，走 manifest.json 配置的域名
 
 // accessToken 仅存内存
-let accessToken: string | null = null
+let accessToken = null
 
 const getAccessToken = () => accessToken
 
-const setAccessToken = (token: string | null) => {
+const setAccessToken = (token) => {
   accessToken = token
 }
 
 // refreshToken 请求队列（防止并发刷新）
 let isRefreshing = false
-let refreshQueue: Array<(token: string) => void> = []
+let refreshQueue = []
 
-interface RequestOptions {
-  url: string
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
-  data?: any
-  header?: Record<string, string>
-  needAuth?: boolean
-  showLoading?: boolean
-}
-
-interface ResponseData<T = any> {
-  code: number
-  message: string
-  data: T
-}
-
-const request = <T = any>(options: RequestOptions): Promise<T> => {
+const request = (options) => {
   const {
     url,
     method = 'GET',
@@ -64,13 +48,13 @@ const request = <T = any>(options: RequestOptions): Promise<T> => {
       success: (res) => {
         if (showLoading) uni.hideLoading()
 
-        const responseData = res.data as ResponseData<T>
+        const responseData = res.data
 
         if (res.statusCode === 401 && needAuth) {
           // Token 过期，尝试刷新
-          handleRefreshToken().then((newToken) => {
+          handleRefreshToken().then(() => {
             // 刷新成功，重试原请求
-            request<T>(options).then(resolve).catch(reject)
+            request(options).then(resolve).catch(reject)
           }).catch(() => {
             // 刷新失败，跳转登录
             clearAuth()
@@ -105,7 +89,7 @@ const request = <T = any>(options: RequestOptions): Promise<T> => {
 }
 
 // 刷新 Token
-const handleRefreshToken = (): Promise<string> => {
+const handleRefreshToken = () => {
   if (isRefreshing) {
     return new Promise((resolve) => {
       refreshQueue.push(resolve)
@@ -127,7 +111,7 @@ const handleRefreshToken = (): Promise<string> => {
       method: 'POST',
       data: { refreshToken },
       success: (res) => {
-        const data = res.data as ResponseData<{ accessToken: string }>
+        const data = res.data
         if (data.code === 0) {
           accessToken = data.data.accessToken
           // 重放队列中的请求
@@ -153,23 +137,23 @@ const clearAuth = () => {
 }
 
 // GET 请求快捷方法
-const get = <T = any>(url: string, data?: any, needAuth = true): Promise<T> => {
-  return request<T>({ url, method: 'GET', data, needAuth })
+const get = (url, data, needAuth = true) => {
+  return request({ url, method: 'GET', data, needAuth })
 }
 
 // POST 请求快捷方法
-const post = <T = any>(url: string, data?: any, needAuth = true, showLoading?: boolean): Promise<T> => {
-  return request<T>({ url, method: 'POST', data, needAuth, showLoading })
+const post = (url, data, needAuth = true, showLoading) => {
+  return request({ url, method: 'POST', data, needAuth, showLoading })
 }
 
 // PUT 请求快捷方法
-const put = <T = any>(url: string, data?: any, needAuth = true): Promise<T> => {
-  return request<T>({ url, method: 'PUT', data, needAuth })
+const put = (url, data, needAuth = true) => {
+  return request({ url, method: 'PUT', data, needAuth })
 }
 
 // DELETE 请求快捷方法
-const del = <T = any>(url: string, needAuth = true): Promise<T> => {
-  return request<T>({ url, method: 'DELETE', needAuth })
+const del = (url, needAuth = true) => {
+  return request({ url, method: 'DELETE', needAuth })
 }
 
 export {

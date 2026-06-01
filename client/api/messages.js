@@ -4,18 +4,14 @@ import { get, put } from './request.js'
 /**
  * 消息列表
  */
-export const getMessages = (params?: {
-  page?: number
-  pageSize?: number
-  type?: string
-}) => {
+export const getMessages = (params) => {
   return get('/messages', params)
 }
 
 /**
  * 标记单条已读
  */
-export const markRead = (id: number) => {
+export const markRead = (id) => {
   return put(`/messages/${id}/read`)
 }
 

@@ -3,7 +3,7 @@
 /**
  * 格式化时间戳为 ISO 8601 字符串（YYYY-MM-DDTHH:mm:ss.sssZ）
  */
-const toISOString = (timestamp: number | Date): string => {
+const toISOString = (timestamp) => {
   const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
   return date.toISOString()
 }
@@ -11,7 +11,7 @@ const toISOString = (timestamp: number | Date): string => {
 /**
  * 格式化日期为 YYYY-MM-DD
  */
-const formatDate = (date: Date | string): string => {
+const formatDate = (date) => {
   const d = typeof date === 'string' ? new Date(date) : date
   const year = d.getFullYear()
   const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -22,7 +22,7 @@ const formatDate = (date: Date | string): string => {
 /**
  * 格式化时间为 YYYY-MM-DD HH:mm
  */
-const formatDateTime = (date: Date | string): string => {
+const formatDateTime = (date) => {
   const d = typeof date === 'string' ? new Date(date) : date
   const dateStr = formatDate(d)
   const hours = String(d.getHours()).padStart(2, '0')
@@ -33,7 +33,7 @@ const formatDateTime = (date: Date | string): string => {
 /**
  * 格式化时间为相对时间（刚刚/x分钟前/x小时前/x天前）
  */
-const formatRelative = (date: Date | string): string => {
+const formatRelative = (date) => {
   const d = typeof date === 'string' ? new Date(date) : date
   const now = Date.now()
   const diff = now - d.getTime()
@@ -52,7 +52,7 @@ const formatRelative = (date: Date | string): string => {
 /**
  * 格式化秒数为 mm:ss
  */
-const formatDuration = (seconds: number): string => {
+const formatDuration = (seconds) => {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
@@ -61,7 +61,7 @@ const formatDuration = (seconds: number): string => {
 /**
  * 获取当前月份字符串 YYYY-MM
  */
-const getCurrentMonth = (): string => {
+const getCurrentMonth = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }

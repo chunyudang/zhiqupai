@@ -16,25 +16,16 @@
 </template>
 
 <script setup>
-const props = withDefaults(defineProps<{
-  visible: boolean
-  title?: string
-  message?: string
-  confirmText?: string
-  cancelText?: string
-  danger?: boolean
-}>(), {
-  title: '确认操作',
-  message: '确定要执行此操作吗？',
-  confirmText: '确定',
-  cancelText: '取消',
-  danger: false,
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  title: { type: String, default: '确认操作' },
+  message: { type: String, default: '确定要执行此操作吗？' },
+  confirmText: { type: String, default: '确定' },
+  cancelText: { type: String, default: '取消' },
+  danger: { type: Boolean, default: false },
 })
 
-const emit = defineEmits<{
-  (e: 'confirm'): void
-  (e: 'cancel'): void
-}>()
+const emit = defineEmits(['confirm', 'cancel'])
 
 const onConfirm = () => {
   emit('confirm')

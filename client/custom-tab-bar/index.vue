@@ -27,7 +27,7 @@ const tabs = [
 
 const selected = ref(0)
 
-const switchTab = (index: number) => {
+const switchTab = (index) => {
   const tab = tabs[index]
   if (tab.isPlaceholder) {
     uni.showToast({ title: '功能完善中……', icon: 'none', duration: 2000 })
