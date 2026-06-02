@@ -1,0 +1,38 @@
+{
+  "name": "识趣派",
+  "appid": "__UNI__SHIQUPAI",
+  "description": "",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "vueVersion": "3",
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 8080
+    }
+  },
+  "app-plus": {
+    "distribute": {
+      "android": {
+        "packageName": "com.shiqupai.app"
+      },
+      "ios": {
+        "bundleIdentifier": "com.shiqupai.app"
+      }
+    },
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "autoclose": false
+    }
+  }
+}

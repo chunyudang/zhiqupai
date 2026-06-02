@@ -1,0 +1,151 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/quiz/categories",
+      "style": {
+        "navigationBarTitleText": "学科选择"
+      }
+    },
+    {
+      "path": "pages/quiz/levels",
+      "style": {
+        "navigationBarTitleText": "关卡选择"
+      }
+    },
+    {
+      "path": "pages/quiz/playing",
+      "style": {
+        "navigationStyle": "custom",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/quiz/result",
+      "style": {
+        "navigationStyle": "custom",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/quiz/review",
+      "style": {
+        "navigationBarTitleText": "关卡回顾"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/profile/checkin",
+      "style": {
+        "navigationBarTitleText": "签到日历"
+      }
+    },
+    {
+      "path": "pages/profile/stats",
+      "style": {
+        "navigationBarTitleText": "数据统计"
+      }
+    },
+    {
+      "path": "pages/profile/records",
+      "style": {
+        "navigationBarTitleText": "答题记录"
+      }
+    },
+    {
+      "path": "pages/profile/points",
+      "style": {
+        "navigationBarTitleText": "积分明细"
+      }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/messages/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/placeholder/index",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/placeholder/quiz",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/placeholder/shop",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#F5F5F5",
+    "app-plus": {
+      "titleNView": false
+    }
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#FF6B35",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/placeholder/quiz",
+        "text": "竞猜"
+      },
+      {
+        "pagePath": "pages/placeholder/shop",
+        "text": "商城"
+      },
+      {
+        "pagePath": "pages/messages/index",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "@/components/u-$1/u-$1.vue"
+    }
+  }
+}

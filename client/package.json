@@ -2,8 +2,28 @@
   "name": "shiqupai-client",
   "version": "1.0.0",
   "description": "识趣派 — 微信小程序客户端",
-  "dependencies": {},
+  "scripts": {
+    "dev:h5": "uni",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "dev:app": "uni -p app",
+    "build:h5": "uni build",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "build:app": "uni build -p app",
+    "build:app-android": "uni build -p app --platform android",
+    "build:app-ios": "uni build -p app --platform ios"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5010220260529001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5010220260529001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5010220260529001",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-5010220260529001",
+    "vue": "^3.4.0",
+    "pinia": "^2.1.0"
+  },
   "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010220260529001",
+    "@dcloudio/uni-cli-shared": "3.0.0-alpha-5010220260529001",
+    "vite": "5.2.8",
     "sass": "^1.69.0"
   }
 }
