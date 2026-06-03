@@ -6,7 +6,6 @@ import { useMessagesStore } from '@/stores/messages'
 import { pointsApi } from '@/api/points'
 import NavBar from '@/components/NavBar.vue'
 import TabBar from '@/components/TabBar.vue'
-import Skeleton from '@/components/Skeleton.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const userStore = useUserStore()

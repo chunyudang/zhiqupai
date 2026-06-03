@@ -78,7 +78,7 @@ async function handleDeleteAccount() {
     await userStore.logout()
     toastRef.value?.show('账号已注销', { type: 'success' })
     setTimeout(() => {
-      uni.reLaunch({ url: '/pages/index/index' })
+      uni.switchTab({ url: '/pages/index/index' })
     }, 1000)
   } catch (err) {
     toastRef.value?.show(err.message || '注销失败', { type: 'error' })

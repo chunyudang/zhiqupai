@@ -63,7 +63,6 @@ utils/
 5. 骨架屏 + 加载中动画处理加载状态
 6. 统一的空状态组件和错误状态展示
 7. API 请求通过 api/request.js 拦截器统一处理 Token 刷新和401
-8. 构建方式使用 HBuilderX IDE 内置编译器
 
 ## Token 与自动登录
 - accessToken 仅存内存（Vue 响应式变量）

@@ -1,7 +1,28 @@
+<template>
+  <view class="page-footer">
+    <view class="c-position-f" :style="{ paddingBottom: safeAreaBottom + 'px' }">
+      <view
+        v-for="(tab, index) in tabs"
+        :key="tab.pagePath"
+        class="tab-item"
+        :class="{ curr: currentIndex === index }"
+        @click="switchTab(tab, index)"
+      >
+        <view class="ft-cont">
+          <view class="ft-icon" :class="'icon-' + tab.iconClass"></view>
+          <view class="ft-tit">{{ tab.text }}</view>
+        </view>
+        <!-- 未读消息角标 -->
+        <view v-if="index === 3 && messagesStore.unreadCount.total > 0" class="tab-badge">
+          <text class="badge-text">{{ messagesStore.unreadCount.total > 99 ? '99+' : messagesStore.unreadCount.total }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
 <script setup>
-// TabBar — 自定义底部导航栏（全端统一，适配底部安全区）
 import { useMessagesStore } from '@/stores/messages'
-import { safeAreaBottom } from '@/utils/platform'
 
 const props = defineProps({
   currentIndex: {
@@ -12,12 +33,15 @@ const props = defineProps({
 
 const messagesStore = useMessagesStore()
 
+const systemInfo = uni.getSystemInfoSync()
+const safeAreaBottom = systemInfo.safeAreaInsets?.bottom || 0
+
 const tabs = [
-  { path: '/pages/index/index', text: '首页', icon: '🏠', activeIcon: '🏠' },
-  { path: '/pages/placeholder/quiz', text: '竞猜', icon: '🎯', activeIcon: '🎯' },
-  { path: '/pages/placeholder/shop', text: '商城', icon: '🛍️', activeIcon: '🛍️' },
-  { path: '/pages/messages/index', text: '消息', icon: '💬', activeIcon: '💬' },
-  { path: '/pages/profile/index', text: '我的', icon: '👤', activeIcon: '👤' }
+  { pagePath: 'pages/index/index', text: '首页', iconClass: 'index' },
+  { pagePath: 'pages/placeholder/quiz', text: '竞猜', iconClass: 'activity' },
+  { pagePath: 'pages/placeholder/shop', text: '商城', iconClass: 'growthBook' },
+  { pagePath: 'pages/messages/index', text: '消息', iconClass: 'msg' },
+  { pagePath: 'pages/profile/index', text: '我的', iconClass: 'user' }
 ]
 
 function switchTab(tab, index) {
@@ -27,79 +51,114 @@ function switchTab(tab, index) {
     return
   }
   if (index === props.currentIndex) return
-  uni.switchTab({ url: tab.path })
+  uni.switchTab({ url: '/' + tab.pagePath })
 }
 </script>
 
-<template>
-  <view class="tabbar" :style="{ paddingBottom: safeAreaBottom + 'px' }">
-    <view
-      v-for="(tab, index) in tabs"
-      :key="tab.path"
-      class="tab-item"
-      :class="{ active: currentIndex === index }"
-      @click="switchTab(tab, index)"
-    >
-      <view class="tab-icon-wrapper">
-        <text class="tab-icon">{{ tab.icon }}</text>
-        <view
-          v-if="index === 3 && messagesStore.unreadCount.total > 0"
-          class="tab-badge"
-        >
-          <text class="badge-text">{{ messagesStore.unreadCount.total > 99 ? '99+' : messagesStore.unreadCount.total }}</text>
-        </view>
-      </view>
-      <text class="tab-text">{{ tab.text }}</text>
-    </view>
-  </view>
-</template>
+<style lang="scss" scoped>
+.page-footer {
+  height: 112rpx;
+  box-sizing: border-box;
+}
 
-<style scoped>
-.tabbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-around;
-  background: #fff;
-  border-top: 1px solid #eee;
-  padding-top: 10rpx;
+.page-footer .c-position-f {
   position: fixed;
-  bottom: 0;
   left: 0;
-  right: 0;
-  z-index: 100;
+  bottom: 0;
+  z-index: 20;
+  width: 100%;
+  height: 112rpx;
+  background: #fff;
+  text-align: center;
+  font-size: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
 
 .tab-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8rpx 0;
-  min-width: 100rpx;
-}
-
-.tab-icon-wrapper {
   position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 20%;
+  height: 100%;
+  line-height: 110rpx;
+  color: $uni-text-color;
 }
 
-.tab-icon {
-  font-size: 40rpx;
+.tab-item .ft-cont {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
 }
 
-.tab-text {
+.tab-item .ft-cont .ft-icon {
+  display: block;
+  width: 48rpx;
+  height: 48rpx;
+  margin: 0 auto 7rpx;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 100% 100%;
+}
+
+.tab-item .ft-cont .ft-icon.icon-index {
+  background-image: url('/static/tab/index.png');
+}
+
+.tab-item .ft-cont .ft-icon.icon-activity {
+  background-image: url('/static/tab/activity.png');
+}
+
+.tab-item .ft-cont .ft-icon.icon-growthBook {
+  background-image: url('/static/tab/growthBook.png');
+}
+
+.tab-item .ft-cont .ft-icon.icon-msg {
+  background-image: url('/static/tab/msg.png');
+}
+
+.tab-item .ft-cont .ft-icon.icon-user {
+  background-image: url('/static/tab/user.png');
+}
+
+.tab-item .ft-cont .ft-tit {
+  text-align: center;
+  color: $uni-text-color;
   font-size: 20rpx;
-  color: #999;
-  margin-top: 4rpx;
 }
 
-.tab-item.active .tab-text {
-  color: #FF6B35;
-  font-weight: 500;
+.tab-item.curr .ft-tit {
+  color: $uni-color-primary;
+  font-weight: bold;
 }
 
+.tab-item.curr .ft-icon.icon-index {
+  background-image: url('/static/tab/index-curr.png');
+}
+
+.tab-item.curr .ft-icon.icon-activity {
+  background-image: url('/static/tab/activity-curr.png');
+}
+
+.tab-item.curr .ft-icon.icon-growthBook {
+  background-image: url('/static/tab/growthBook-curr.png');
+}
+
+.tab-item.curr .ft-icon.icon-msg {
+  background-image: url('/static/tab/msg-curr.png');
+}
+
+.tab-item.curr .ft-icon.icon-user {
+  background-image: url('/static/tab/user-curr.png');
+}
+
+/* 未读消息角标 */
 .tab-badge {
   position: absolute;
-  top: -8rpx;
-  right: -16rpx;
+  top: 4rpx;
+  right: 50%;
+  margin-right: -52rpx;
   min-width: 32rpx;
   height: 32rpx;
   background: #F44336;

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { quizApi } from '@/api/quiz'
 import { QUIZ_CONFIG, OPTION_LABELS } from '@/utils/constants'
@@ -132,7 +132,6 @@ async function submitQuiz() {
 const progressPercent = computed(() => {
   return ((currentIndex.value) / QUIZ_CONFIG.QUESTIONS_PER_LEVEL) * 100
 })
-import { computed } from 'vue'
 </script>
 
 <template>

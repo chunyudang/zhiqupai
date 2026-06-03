@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { seedAdmin } from './seed-admin'
+import { seedUser } from './seed-user'
 import { seedCategories } from './seed-categories'
 import { seedLevels } from './seed-levels'
 import { seedQuestions } from './seed-questions'
@@ -35,6 +36,7 @@ async function main() {
   console.log('🌱 Starting seed...\n')
 
   await seedAdmin(prisma)
+  await seedUser(prisma)
   await seedCategories(prisma)
   await seedLevels(prisma)
   await seedQuestions(prisma)
@@ -54,7 +56,8 @@ async function main() {
   console.log(`   Categories: ${categoryCount}`)
   console.log(`   Levels: ${levelCount}`)
   console.log(`   Questions: ${questionCount}`)
-  console.log('\n🔑 Admin login: admin / admin123')
+  console.log('\n🔑 Test user: 13800000000 / dcy1234')
+  console.log('🔑 Admin login: admin / admin123')
 }
 
 main()

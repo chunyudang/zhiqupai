@@ -2,23 +2,23 @@
 // 四端统一：H5 开发走 Vite proxy，其他端直连
 
 // #ifdef H5
-const BASE_URL = '/api/v1'
+const BASE_URL = 'http://localhost:3000/api/v1';
 // #endif
 // #ifndef H5
-const BASE_URL = 'http://localhost:3000/api/v1'
+const BASE_URL = 'http://localhost:3000/api/v1';
 // #endif
 
 // 上传文件的 base URL（不含 /api/v1 前缀，因 uni.uploadFile 需要完整 URL）
 // #ifdef H5
-const UPLOAD_BASE = ''
+const UPLOAD_BASE = 'http://localhost:3000';
 // #endif
 // #ifndef H5
-const UPLOAD_BASE = 'http://localhost:3000'
+const UPLOAD_BASE = 'http://localhost:3000';
 // #endif
 
-const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008]
-let isRefreshing = false
-let refreshQueue = []
+const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008];
+let isRefreshing = false;
+let refreshQueue = [];
 
 /**
  * 执行请求
@@ -26,29 +26,22 @@ let refreshQueue = []
  * @returns {Promise}
  */
 function request(options = {}) {
-  const {
-    url,
-    method = 'GET',
-    data = {},
-    header = {},
-    showLoading = false,
-    skipAuth = false
-  } = options
+  const { url, method = 'GET', data = {}, header = {}, showLoading = false, skipAuth = false } = options;
 
   if (showLoading) {
-    uni.showLoading({ title: '加载中...', mask: true })
+    uni.showLoading({ title: '加载中...', mask: true });
   }
 
   return new Promise((resolve, reject) => {
     const doRequest = (retryToken = null) => {
-      const headers = { 'Content-Type': 'application/json', ...header }
+      const headers = { 'Content-Type': 'application/json', ...header };
 
       if (!skipAuth) {
         // 从 Pinia store 获取 accessToken
-        const userStore = getStore()
-        const token = retryToken || userStore?.accessToken
+        const userStore = getStore();
+        const token = retryToken || userStore?.accessToken;
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`
+          headers['Authorization'] = `Bearer ${token}`;
         }
       }
 
@@ -58,48 +51,48 @@ function request(options = {}) {
         data,
         header: headers,
         success: (res) => {
-          const body = res.data
+          const body = res.data;
 
           // 服务端统一返回 HTTP 200，错误码在 body.code
           if (body && body.code === 0) {
-            resolve(body.data)
-            return
+            resolve(body.data);
+            return;
           }
 
           // Token 过期，尝试刷新
           if (body && AUTH_ERROR_CODES.includes(body.code) && !skipAuth) {
-            handleTokenRefresh(body, resolve, reject, () => doRequest())
-            return
+            handleTokenRefresh(body, resolve, reject, () => doRequest());
+            return;
           }
 
           // 其他业务错误
-          const error = new Error(body?.message || '请求失败')
-          error.code = body?.code || -1
-          reject(error)
+          const error = new Error(body?.message || '请求失败');
+          error.code = body?.code || -1;
+          reject(error);
 
           if (!options.silent) {
-            uni.showToast({ title: error.message, icon: 'none', duration: 2000 })
+            uni.showToast({ title: error.message, icon: 'none', duration: 2000 });
           }
         },
         fail: (err) => {
-          const error = new Error('网络请求失败，请检查网络')
-          error.original = err
-          reject(error)
+          const error = new Error('网络请求失败，请检查网络');
+          error.original = err;
+          reject(error);
 
           if (!options.silent) {
-            uni.showToast({ title: error.message, icon: 'none', duration: 2000 })
+            uni.showToast({ title: error.message, icon: 'none', duration: 2000 });
           }
         },
         complete: () => {
           if (showLoading) {
-            uni.hideLoading()
+            uni.hideLoading();
           }
-        }
-      })
-    }
+        },
+      });
+    };
 
-    doRequest()
-  })
+    doRequest();
+  });
 }
 
 /**
@@ -108,21 +101,21 @@ function request(options = {}) {
 function handleTokenRefresh(body, resolve, reject, retryRequest) {
   if (isRefreshing) {
     // 正在刷新，加入队列等待
-    refreshQueue.push({ resolve, reject, retryRequest })
-    return
+    refreshQueue.push({ resolve, reject, retryRequest });
+    return;
   }
 
-  isRefreshing = true
+  isRefreshing = true;
 
-  const userStore = getStore()
+  const userStore = getStore();
   if (!userStore?.refreshToken) {
-    isRefreshing = false
-    userStore?.clearAuth()
-    navigateToLogin()
-    const error = new Error(body?.message || '登录已过期，请重新登录')
-    error.code = 10003
-    reject(error)
-    return
+    isRefreshing = false;
+    userStore?.clearAuth();
+    navigateToLogin();
+    const error = new Error(body?.message || '登录已过期，请重新登录');
+    error.code = 10003;
+    reject(error);
+    return;
   }
 
   // 刷新 accessToken
@@ -131,48 +124,48 @@ function handleTokenRefresh(body, resolve, reject, retryRequest) {
     method: 'POST',
     data: { refreshToken: userStore.refreshToken },
     success: (refreshRes) => {
-      const refreshBody = refreshRes.data
+      const refreshBody = refreshRes.data;
 
       if (refreshBody && refreshBody.code === 0) {
-        const newToken = refreshBody.data.accessToken
-        userStore.setAccessToken(newToken)
+        const newToken = refreshBody.data.accessToken;
+        userStore.setAccessToken(newToken);
 
         // 重试当前请求
-        retryRequest()
+        retryRequest();
 
         // 处理队列中的其他请求
-        refreshQueue.forEach(({ retryRequest }) => retryRequest())
+        refreshQueue.forEach(({ retryRequest }) => retryRequest());
       } else {
         // refresh 也失败了，清除登录态
-        userStore?.clearAuth()
-        navigateToLogin()
-        const error = new Error(refreshBody?.message || '登录已过期，请重新登录')
-        reject(error)
-        refreshQueue.forEach(({ reject }) => reject(error))
+        userStore?.clearAuth();
+        navigateToLogin();
+        const error = new Error(refreshBody?.message || '登录已过期，请重新登录');
+        reject(error);
+        refreshQueue.forEach(({ reject }) => reject(error));
       }
     },
     fail: () => {
-      userStore?.clearAuth()
-      navigateToLogin()
-      const error = new Error('网络异常，请重新登录')
-      reject(error)
-      refreshQueue.forEach(({ reject }) => reject(error))
+      userStore?.clearAuth();
+      navigateToLogin();
+      const error = new Error('网络异常，请重新登录');
+      reject(error);
+      refreshQueue.forEach(({ reject }) => reject(error));
     },
     complete: () => {
-      isRefreshing = false
-      refreshQueue = []
-    }
-  })
+      isRefreshing = false;
+      refreshQueue = [];
+    },
+  });
 }
 
 /**
  * 导航到登录页
  */
 function navigateToLogin() {
-  const pages = getCurrentPages()
-  const currentPage = pages[pages.length - 1]
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1];
   if (currentPage && currentPage.route !== 'pages/login/login') {
-    uni.reLaunch({ url: '/pages/login/login' })
+    uni.reLaunch({ url: '/pages/login/login' });
   }
 }
 
@@ -181,12 +174,12 @@ function navigateToLogin() {
  */
 function getStore() {
   try {
-    const { useUserStore } = require('@/stores/user')
-    const pinia = getApp()?.$pinia
-    if (pinia) return useUserStore(pinia)
-    return useUserStore()
+    const { useUserStore } = require('@/stores/user');
+    const pinia = getApp()?.$pinia;
+    if (pinia) return useUserStore(pinia);
+    return useUserStore();
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -197,7 +190,7 @@ function getStore() {
  * @returns {Promise}
  */
 function uploadFile(filePath, url = '/api/v1/users/upload/avatar') {
-  const userStore = getStore()
+  const userStore = getStore();
 
   return new Promise((resolve, reject) => {
     uni.uploadFile({
@@ -205,57 +198,57 @@ function uploadFile(filePath, url = '/api/v1/users/upload/avatar') {
       filePath,
       name: 'file',
       header: {
-        'Authorization': `Bearer ${userStore?.accessToken || ''}`
+        Authorization: `Bearer ${userStore?.accessToken || ''}`,
       },
       success: (res) => {
         try {
-          const body = JSON.parse(res.data)
+          const body = JSON.parse(res.data);
           if (body && body.code === 0) {
-            resolve(body.data)
+            resolve(body.data);
           } else {
-            const error = new Error(body?.message || '上传失败')
-            error.code = body?.code || -1
-            reject(error)
-            uni.showToast({ title: error.message, icon: 'none', duration: 2000 })
+            const error = new Error(body?.message || '上传失败');
+            error.code = body?.code || -1;
+            reject(error);
+            uni.showToast({ title: error.message, icon: 'none', duration: 2000 });
           }
         } catch {
-          reject(new Error('上传响应异常'))
+          reject(new Error('上传响应异常'));
         }
       },
       fail: () => {
-        reject(new Error('上传失败，请检查网络'))
-      }
-    })
-  })
+        reject(new Error('上传失败，请检查网络'));
+      },
+    });
+  });
 }
 
 // 便捷方法
 function get(url, params = {}, opts = {}) {
-  let queryStr = ''
+  let queryStr = '';
   if (params && Object.keys(params).length > 0) {
-    const parts = []
+    const parts = [];
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
       }
-    })
+    });
     if (parts.length > 0) {
-      queryStr = '?' + parts.join('&')
+      queryStr = '?' + parts.join('&');
     }
   }
-  return request({ ...opts, url: url + queryStr, method: 'GET' })
+  return request({ ...opts, url: url + queryStr, method: 'GET' });
 }
 
 function post(url, data = {}, opts = {}) {
-  return request({ ...opts, url, method: 'POST', data })
+  return request({ ...opts, url, method: 'POST', data });
 }
 
 function put(url, data = {}, opts = {}) {
-  return request({ ...opts, url, method: 'PUT', data })
+  return request({ ...opts, url, method: 'PUT', data });
 }
 
 function del(url, data = {}, opts = {}) {
-  return request({ ...opts, url, method: 'DELETE', data })
+  return request({ ...opts, url, method: 'DELETE', data });
 }
 
-export { BASE_URL, UPLOAD_BASE, request, uploadFile, get, post, put, del }
+export { BASE_URL, UPLOAD_BASE, request, uploadFile, get, post, put, del };

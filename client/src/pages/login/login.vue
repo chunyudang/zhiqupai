@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
+import Toast from '@/components/Toast.vue'
 import { validatePhone, validatePassword, validateNickname, validateConfirmPassword } from '@/utils/validators'
 
 const userStore = useUserStore()
@@ -52,16 +53,16 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (mode.value === 'login') {
-      await userStore.login(phone.value, password.value)
-      toastRef.value?.show('登录成功', { type: 'success' })
+      await userStore.login(phone.value, password.value);
     } else {
       await userStore.register(phone.value, password.value, nickname.value)
-      toastRef.value?.show('注册成功', { type: 'success' })
     }
-    // 跳转到首页
+    // 使用内置 uni.showToast + reLaunch，比自定义组件更可靠
+    uni.showToast({ title: '登录成功', icon: 'success', duration: 1500 })
     setTimeout(() => {
-      uni.reLaunch({ url: '/pages/index/index' })
-    }, 800)
+      uni.navigateBack();
+      //uni.reLaunch({ url: '/pages/index/index' })
+    }, 1500)
   } catch (err) {
     toastRef.value?.show(err.message || '操作失败', { type: 'error' })
   } finally {
@@ -93,44 +94,16 @@ async function handleSubmit() {
 
       <!-- 输入区域 -->
       <view class="input-group">
-        <input
-          v-model="phone"
-          type="number"
-          placeholder="请输入手机号"
-          maxlength="11"
-          class="form-input"
-        />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="请输入密码（6-20位字母/数字）"
-          maxlength="20"
-          class="form-input"
-        />
+        <input v-model="phone" type="number" placeholder="请输入手机号" maxlength="11" class="form-input" />
+        <input v-model="password" type="password" placeholder="请输入密码（6-20位字母/数字）" maxlength="20" class="form-input" />
         <template v-if="mode === 'register'">
-          <input
-            v-model="confirmPassword"
-            type="password"
-            placeholder="请再次输入密码"
-            maxlength="20"
-            class="form-input"
-          />
-          <input
-            v-model="nickname"
-            type="text"
-            placeholder="请输入昵称（选填，1-16位）"
-            maxlength="16"
-            class="form-input"
-          />
+          <input v-model="confirmPassword" type="password" placeholder="请再次输入密码" maxlength="20" class="form-input" />
+          <input v-model="nickname" type="text" placeholder="请输入昵称（选填，1-16位）" maxlength="16" class="form-input" />
         </template>
       </view>
 
       <!-- 提交按钮 -->
-      <button
-        class="submit-btn"
-        :disabled="submitting"
-        @click="handleSubmit"
-      >
+      <button class="submit-btn" :disabled="submitting" @click="handleSubmit">
         {{ submitting ? '处理中...' : (mode === 'login' ? '登录' : '注册') }}
       </button>
     </view>

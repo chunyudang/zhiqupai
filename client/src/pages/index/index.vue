@@ -14,10 +14,12 @@ const loadError = ref(false)
 const categories = ref([])
 
 onShow(() => {
+  console.log('onShow11', userStore.isLoggedIn);
   if (userStore.isLoggedIn) {
     fetchCategories()
   } else if (userStore.autoLoginDone) {
     loading.value = false
+    console.log('onShow44');
   }
 })
 
@@ -26,12 +28,14 @@ async function fetchCategories() {
   loadError.value = false
   try {
     const data = await quizApi.getCategories()
+    console.log('onShow22', data);
     categories.value = data
   } catch {
     loadError.value = true
   } finally {
     loading.value = false
   }
+  console.log('onShow33');
 }
 
 function goToLevels(category) {
@@ -39,6 +43,7 @@ function goToLevels(category) {
 }
 
 function goToLogin() {
+  console.log('login');
   uni.navigateTo({ url: '/pages/login/login' })
 }
 
@@ -72,33 +77,20 @@ function getIcon(cat, index) {
 
       <Skeleton v-if="loading" type="card" :count="3" />
 
-      <EmptyState
-        v-else-if="loadError"
-        message="加载失败"
-        :showAction="true"
-        actionText="重试"
-        @action="fetchCategories"
-      />
+      <EmptyState v-else-if="loadError" message="加载失败" :showAction="true" actionText="重试" @action="fetchCategories" />
 
       <EmptyState v-else-if="categories.length === 0" message="暂无学科数据" />
 
       <view v-else class="category-list">
-        <view
-          v-for="(cat, index) in categories"
-          :key="cat.id"
-          class="category-card"
-          @click="goToLevels(cat)"
-        >
+        <view v-for="(cat, index) in categories" :key="cat.id" class="category-card" @click="goToLevels(cat)">
           <text class="category-icon">{{ getIcon(cat, index) }}</text>
           <view class="category-info">
             <text class="category-name">{{ cat.name }}</text>
             <text class="category-desc">{{ cat.description || '' }}</text>
             <view class="category-progress">
               <view class="progress-bar">
-                <view
-                  class="progress-fill"
-                  :style="{ width: cat.totalLevels ? (cat.passedCount / cat.totalLevels * 100) + '%' : '0%' }"
-                />
+                <view class="progress-fill"
+                  :style="{ width: cat.totalLevels ? (cat.passedCount / cat.totalLevels * 100) + '%' : '0%' }" />
               </view>
               <text class="progress-text">{{ cat.passedCount }}/{{ cat.totalLevels || 5 }} 关</text>
             </view>

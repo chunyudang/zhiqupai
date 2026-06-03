@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { QUIZ_CONFIG, OPTION_LABELS } from '@/utils/constants'
 import NavBar from '@/components/NavBar.vue'
@@ -57,7 +57,6 @@ const details = computed(() => {
   })
 })
 
-import { computed } from 'vue'
 </script>
 
 <template>
