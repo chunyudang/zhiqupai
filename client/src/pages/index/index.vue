@@ -4,7 +4,6 @@ import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import { quizApi } from '@/api/quiz'
 import NavBar from '@/components/NavBar.vue'
-import TabBar from '@/components/TabBar.vue'
 import Skeleton from '@/components/Skeleton.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -102,7 +101,6 @@ function getIcon(cat, index) {
       </view>
     </template>
 
-    <TabBar :currentIndex="0" />
   </view>
 </template>
 

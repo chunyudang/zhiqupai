@@ -132,15 +132,7 @@ const statusClass = {
 <template>
   <view class="page">
     <Skeleton v-if="loading" type="card" :count="1" />
-
-    <EmptyState
-      v-else-if="loadError"
-      message="加载失败"
-      :showAction="true"
-      actionText="重试"
-      @action="fetchCalendar"
-    />
-
+    <EmptyState v-else-if="loadError" message="加载失败" :showAction="true" actionText="重试" @action="fetchCalendar" />
     <view v-else class="checkin-content">
       <!-- 签到信息 -->
       <view class="checkin-info">
@@ -148,11 +140,7 @@ const statusClass = {
           <text class="checkin-tip">连续签到 {{ calendarData?.consecutiveDays || 0 }} 天</text>
           <text class="makeup-remaining">剩余补签 {{ calendarData?.maxMakeupRemaining || 0 }} 次</text>
         </view>
-        <button
-          class="checkin-btn"
-          :disabled="checkingIn"
-          @click="handleCheckin"
-        >
+        <button class="checkin-btn" :disabled="checkingIn" @click="handleCheckin">
           {{ checkingIn ? '签到中...' : '立即签到' }}
         </button>
       </view>
@@ -171,13 +159,8 @@ const statusClass = {
 
       <!-- 日期网格 -->
       <view class="day-grid">
-        <view
-          v-for="(cell, idx) in days"
-          :key="idx"
-          class="day-cell"
-          :class="statusClass[cell.status] || ''"
-          @click="handleDayClick(cell)"
-        >
+        <view v-for="(cell, idx) in days" :key="idx" class="day-cell" :class="statusClass[cell.status] || ''"
+          @click="handleDayClick(cell)">
           <text v-if="cell.day" class="day-num">{{ cell.day }}</text>
           <text v-if="cell.pointsEarned > 0" class="day-points">+{{ cell.pointsEarned }}</text>
         </view>
@@ -185,22 +168,24 @@ const statusClass = {
 
       <!-- 图例 -->
       <view class="legend">
-        <view class="legend-item"><view class="dot signed-dot" /><text>已签到</text></view>
-        <view class="legend-item"><view class="dot makeup-dot" /><text>补签</text></view>
-        <view class="legend-item"><view class="dot missed-dot" /><text>可补签</text></view>
-        <view class="legend-item"><view class="dot today-dot" /><text>今日</text></view>
+        <view class="legend-item">
+          <view class="dot signed-dot" /><text>已签到</text>
+        </view>
+        <view class="legend-item">
+          <view class="dot makeup-dot" /><text>补签</text>
+        </view>
+        <view class="legend-item">
+          <view class="dot missed-dot" /><text>可补签</text>
+        </view>
+        <view class="legend-item">
+          <view class="dot today-dot" /><text>今日</text>
+        </view>
       </view>
     </view>
 
     <Toast ref="toastRef" />
-    <ConfirmModal
-      :show="showMakeupModal"
-      title="补签确认"
-      :message="`补签 ${makeupConfirmDate} 消耗 50 积分，确定吗？`"
-      confirmText="补签"
-      @confirm="confirmMakeup"
-      @cancel="showMakeupModal = false"
-    />
+    <ConfirmModal :show="showMakeupModal" title="补签确认" :message="`补签 ${makeupConfirmDate} 消耗 50 积分，确定吗？`"
+      confirmText="补签" @confirm="confirmMakeup" @cancel="showMakeupModal = false" />
   </view>
 </template>
 
@@ -234,7 +219,7 @@ const statusClass = {
 
 .makeup-remaining {
   font-size: 24rpx;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 4rpx;
 }
 
@@ -324,7 +309,8 @@ const statusClass = {
   border: 2rpx solid #FF6B35;
 }
 
-.day-future, .day-missed {
+.day-future,
+.day-missed {
   opacity: 0.5;
 }
 
@@ -349,8 +335,19 @@ const statusClass = {
   margin-right: 8rpx;
 }
 
-.signed-dot { background: rgba(255, 107, 53, 0.3); }
-.makeup-dot { background: rgba(255, 152, 0, 0.3); }
-.missed-dot { background: #ddd; }
-.today-dot { background: #FF6B35; }
+.signed-dot {
+  background: rgba(255, 107, 53, 0.3);
+}
+
+.makeup-dot {
+  background: rgba(255, 152, 0, 0.3);
+}
+
+.missed-dot {
+  background: #ddd;
+}
+
+.today-dot {
+  background: #FF6B35;
+}
 </style>

@@ -5,7 +5,6 @@ import { useUserStore } from '@/stores/user'
 import { useMessagesStore } from '@/stores/messages'
 import { pointsApi } from '@/api/points'
 import NavBar from '@/components/NavBar.vue'
-import TabBar from '@/components/TabBar.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const userStore = useUserStore()
@@ -117,7 +116,6 @@ async function handleLogout() {
       </view>
     </view>
 
-    <TabBar :currentIndex="4" />
     <ConfirmModal
       :show="showLogoutModal"
       title="退出登录"

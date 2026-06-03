@@ -8,7 +8,6 @@ import { MESSAGE_TYPE_LABELS } from '@/utils/constants'
 import { formatRelative } from '@/utils/time'
 import { PAGE_SIZE } from '@/utils/constants'
 import NavBar from '@/components/NavBar.vue'
-import TabBar from '@/components/TabBar.vue'
 import Skeleton from '@/components/Skeleton.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -176,7 +175,6 @@ function goToLogin() {
       </view>
     </template>
 
-    <TabBar :currentIndex="3" />
   </view>
 </template>
 

@@ -115,30 +115,39 @@
     }
   },
   "tabBar": {
-    "custom": true,
     "color": "#999999",
     "selectedColor": "#FF6B35",
     "backgroundColor": "#FFFFFF",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "static/tab/index.png",
+        "selectedIconPath": "static/tab/index-curr.png"
       },
       {
         "pagePath": "pages/placeholder/quiz",
-        "text": "竞猜"
+        "text": "竞猜",
+        "iconPath": "static/tab/activity.png",
+        "selectedIconPath": "static/tab/activity-curr.png"
       },
       {
         "pagePath": "pages/placeholder/shop",
-        "text": "商城"
+        "text": "商城",
+        "iconPath": "static/tab/growthBook.png",
+        "selectedIconPath": "static/tab/growthBook-curr.png"
       },
       {
         "pagePath": "pages/messages/index",
-        "text": "消息"
+        "text": "消息",
+        "iconPath": "static/tab/msg.png",
+        "selectedIconPath": "static/tab/msg-curr.png"
       },
       {
         "pagePath": "pages/profile/index",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "static/tab/user.png",
+        "selectedIconPath": "static/tab/user-curr.png"
       }
     ]
   },
