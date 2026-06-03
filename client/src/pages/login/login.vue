@@ -53,16 +53,19 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (mode.value === 'login') {
-      await userStore.login(phone.value, password.value);
+      const res = await userStore.login(phone.value, password.value);
+      //console.log('login===', res);
+      toastRef.value?.show('登录成功', { type: 'success' })
     } else {
       await userStore.register(phone.value, password.value, nickname.value)
+      toastRef.value?.show('注册成功', { type: 'success' })
     }
-    // 使用内置 uni.showToast + reLaunch，比自定义组件更可靠
-    uni.showToast({ title: '登录成功', icon: 'success', duration: 1500 })
+    // 返回上一页（login 由 navigateTo 打开，navigateBack 回到首页）
     setTimeout(() => {
-      uni.navigateBack();
-      //uni.reLaunch({ url: '/pages/index/index' })
-    }, 1500)
+      //uni.navigateBack()
+      uni.reLaunch({ url: '/pages/index/index' })
+      //uni.navigateTo({ url: '/pages/index/index' })
+    }, 800)
   } catch (err) {
     toastRef.value?.show(err.message || '操作失败', { type: 'error' })
   } finally {

@@ -19,6 +19,21 @@ const UPLOAD_BASE = 'http://localhost:3000';
 const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008];
 let isRefreshing = false;
 let refreshQueue = [];
+let _store = null;
+
+/**
+ * 设置 store 引用（由 main.js 初始化时调用，避免循环依赖）
+ */
+export function setRequestStore(store) {
+  _store = store
+}
+
+/**
+ * 获取 store 引用
+ */
+function getStore() {
+  return _store
+}
 
 /**
  * 执行请求
@@ -166,20 +181,6 @@ function navigateToLogin() {
   const currentPage = pages[pages.length - 1];
   if (currentPage && currentPage.route !== 'pages/login/login') {
     uni.reLaunch({ url: '/pages/login/login' });
-  }
-}
-
-/**
- * 动态获取 Pinia store（避免循环依赖）
- */
-function getStore() {
-  try {
-    const { useUserStore } = require('@/stores/user');
-    const pinia = getApp()?.$pinia;
-    if (pinia) return useUserStore(pinia);
-    return useUserStore();
-  } catch {
-    return null;
   }
 }
 
