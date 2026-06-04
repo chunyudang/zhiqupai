@@ -16,17 +16,11 @@ export class UserService {
     })
 
     if (!user) {
-      throw new HttpException(
-        { code: 11001, message: '用户不存在', data: null },
-        404,
-      )
+      throw new HttpException({ code: 11001, message: '用户不存在', data: null }, 404)
     }
 
     if (user.status === 'deleted') {
-      throw new HttpException(
-        { code: 11001, message: '用户不存在', data: null },
-        404,
-      )
+      throw new HttpException({ code: 11001, message: '用户不存在', data: null }, 404)
     }
 
     return {
@@ -49,17 +43,11 @@ export class UserService {
     })
 
     if (!user) {
-      throw new HttpException(
-        { code: 11001, message: '用户不存在', data: null },
-        404,
-      )
+      throw new HttpException({ code: 11001, message: '用户不存在', data: null }, 404)
     }
 
     if (user.status !== 'active') {
-      throw new HttpException(
-        { code: 11002, message: '账号状态异常，无法修改', data: null },
-        403,
-      )
+      throw new HttpException({ code: 11002, message: '账号状态异常，无法修改', data: null }, 403)
     }
 
     const updateData: Record<string, string> = {}
@@ -89,17 +77,11 @@ export class UserService {
     })
 
     if (!user) {
-      throw new HttpException(
-        { code: 11001, message: '用户不存在', data: null },
-        404,
-      )
+      throw new HttpException({ code: 11001, message: '用户不存在', data: null }, 404)
     }
 
     if (user.status !== 'active') {
-      throw new HttpException(
-        { code: 11002, message: '账号状态异常，无法修改', data: null },
-        403,
-      )
+      throw new HttpException({ code: 11002, message: '账号状态异常，无法修改', data: null }, 403)
     }
 
     await this.prisma.user.update({
@@ -120,29 +102,17 @@ export class UserService {
     })
 
     if (!user) {
-      throw new HttpException(
-        { code: 11001, message: '用户不存在', data: null },
-        404,
-      )
+      throw new HttpException({ code: 11001, message: '用户不存在', data: null }, 404)
     }
 
     if (user.status === 'deleted') {
-      throw new HttpException(
-        { code: 11001, message: '账号已注销', data: null },
-        400,
-      )
+      throw new HttpException({ code: 11001, message: '账号已注销', data: null }, 400)
     }
 
     // 校验密码
-    const isPasswordValid = await bcryptjs.compare(
-      confirmPassword,
-      user.passwordHash,
-    )
+    const isPasswordValid = await bcryptjs.compare(confirmPassword, user.passwordHash)
     if (!isPasswordValid) {
-      throw new HttpException(
-        { code: 10002, message: '密码错误', data: null },
-        400,
-      )
+      throw new HttpException({ code: 10002, message: '密码错误', data: null }, 400)
     }
 
     // 软删除：标记为 deleted，清除 refreshTokens

@@ -248,9 +248,27 @@ export class CheckinService {
       calendar.push({ date, status, pointsEarned })
     }
 
+    // 计算连续签到天数：从今天往前回溯
+    let consecutiveDays = 0
+    const todayRecord = checkinMap.get(today)
+    if (todayRecord) {
+      // 今日已签到，从今日往前回溯
+      consecutiveDays = await this.countConsecutiveDays(userId, today)
+    } else {
+      // 今日未签到，尝试从昨天往前回溯
+      const yesterday = this.formatDate(
+        new Date(new Date(today).getTime() - 86400000),
+      )
+      const yesterdayRecord = checkinMap.get(yesterday)
+      if (yesterdayRecord && yesterdayRecord.isMakeup === 0) {
+        consecutiveDays = await this.countConsecutiveDays(userId, yesterday)
+      }
+    }
+
     return {
       month: query.month,
       calendar,
+      consecutiveDays,
       maxMakeupRemaining: maxMakeups - currentMakeups,
     }
   }

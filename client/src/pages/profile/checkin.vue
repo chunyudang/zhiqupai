@@ -53,7 +53,7 @@ function buildCalendarGrid() {
   // 填充当月日期
   for (let d = 1; d <= monthDays; d++) {
     const dateStr = `${yearMonth.value}-${String(d).padStart(2, '0')}`
-    const record = (calendarData.value?.days || []).find((r) => r.date === dateStr)
+    const record = (calendarData.value?.calendar || []).find((r) => r.date === dateStr)
     cells.push({
       type: 'date',
       date: dateStr,
@@ -71,7 +71,7 @@ async function handleCheckin() {
   checkingIn.value = true
   try {
     const data = await checkinApi.checkin()
-    toastRef.value?.show(`签到成功！+${data.earnedPoints} 积分`, { type: 'success' })
+    toastRef.value?.show(`签到成功！+${data.points} 积分`, { type: 'success' })
     fetchCalendar()
   } catch (err) {
     toastRef.value?.show(err.message || '签到失败', { type: 'error' })

@@ -35,10 +35,11 @@ pages/
 └── placeholder/              # 预留页面（竞猜/商城提示页）
 
 components/
-├── TabBar.vue
-├── NavBar.vue
-├── Skeleton.vue
+├── ConfirmModal.vue
 ├── EmptyState.vue
+├── NavBar.vue
+├── PageLayout.vue
+├── Skeleton.vue
 └── Toast.vue
 
 api/

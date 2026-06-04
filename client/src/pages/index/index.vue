@@ -27,14 +27,13 @@ async function fetchCategories() {
   loadError.value = false
   try {
     const data = await quizApi.getCategories()
-    console.log('onShow22', data);
+    //console.log('onShow22', data);
     categories.value = data
   } catch (err) {
-    //loadError.value = true
+    loadError.value = true
     console.log('onShow66', err);
   } finally {
     loading.value = false
-    console.log('onShow33');
   }
 
 }

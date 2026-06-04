@@ -5,6 +5,13 @@ import { quizApi } from '@/api/quiz'
 import { QUIZ_CONFIG, OPTION_LABELS } from '@/utils/constants'
 import NavBar from '@/components/NavBar.vue'
 
+// 去掉选项文本中的 A./A、/A: 等前缀标识
+function cleanOptionText(options) {
+  const arr = typeof options === 'string' ? JSON.parse(options) : options
+  if (!Array.isArray(arr)) return []
+  return arr.map((opt) => String(opt).replace(/^[A-Z][.、:：)\]）]\s*/, '').trim())
+}
+
 const levelId = ref(0)
 const categoryId = ref(0)
 const pageState = ref('loading') // loading | countdown | playing | submitting | error
@@ -40,7 +47,10 @@ async function startQuiz() {
   try {
     const data = await quizApi.startQuiz(levelId.value)
     attemptId.value = data.attemptId
-    questions.value = data.questions
+    questions.value = data.questions.map((q) => ({
+      ...q,
+      options: cleanOptionText(q.options)
+    }))
     currentIndex.value = 0
     countdownNum.value = QUIZ_CONFIG.COUNTDOWN_START
 
@@ -349,13 +359,22 @@ const progressPercent = computed(() => {
 .option-btn {
   display: flex;
   align-items: center;
+  width: 100%;
   background: #fff;
   border: 2rpx solid #eee;
   border-radius: 12rpx;
   padding: 24rpx 24rpx;
+  margin: 0;
+  margin-left: 0;
+  margin-right: 0;
   font-size: 28rpx;
   text-align: left;
   transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.option-btn::after {
+  border: none;
 }
 
 .option-btn.selected {

@@ -4,6 +4,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import { useMessagesStore } from '@/stores/messages'
 import { pointsApi } from '@/api/points'
+import { SERVER_BASE } from '@/api/request'
 import NavBar from '@/components/NavBar.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 
@@ -13,6 +14,13 @@ const loading = ref(false)
 const balance = ref(0)
 const todayEarned = ref(0)
 const showLogoutModal = ref(false)
+
+// 头像完整 URL 拼接
+function avatarUrl(path) {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return SERVER_BASE + path
+}
 
 onShow(() => {
   if (userStore.isLoggedIn) {
@@ -51,7 +59,7 @@ async function handleLogout() {
         <view class="avatar-area" @click="navigateTo('/pages/profile/settings')">
           <image
             v-if="userStore.userInfo?.avatar"
-            :src="userStore.userInfo?.avatar"
+            :src="avatarUrl(userStore.userInfo?.avatar)"
             class="avatar-img"
             mode="aspectFill"
           />

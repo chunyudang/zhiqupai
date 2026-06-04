@@ -6,6 +6,13 @@ import { OPTION_LABELS } from '@/utils/constants'
 import Skeleton from '@/components/Skeleton.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
+// 去掉选项文本中的 A./A、/A: 等前缀标识
+function cleanOptionText(options) {
+  const arr = typeof options === 'string' ? JSON.parse(options) : options
+  if (!Array.isArray(arr)) return []
+  return arr.map((opt) => String(opt).replace(/^[A-Z][.、:：)\]）]\s*/, '').trim())
+}
+
 const levelId = ref(0)
 const loading = ref(true)
 const loadError = ref(false)
@@ -21,7 +28,13 @@ async function fetchReview() {
   loadError.value = false
   try {
     const data = await quizApi.getReview(levelId.value)
-    review.value = data
+    review.value = {
+      ...data,
+      details: (data.details || []).map((item) => ({
+        ...item,
+        options: cleanOptionText(item.options)
+      }))
+    }
   } catch {
     loadError.value = true
   } finally {

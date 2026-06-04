@@ -3,11 +3,19 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
+import { SERVER_BASE } from '@/api/request'
 import Toast from '@/components/Toast.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const userStore = useUserStore()
 const toastRef = ref(null)
+
+// 头像完整 URL 拼接
+function avatarUrl(path) {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return SERVER_BASE + path
+}
 
 // 修改昵称
 const showNicknameEdit = ref(false)
@@ -56,8 +64,7 @@ function chooseAvatar() {
       uploadingAvatar.value = true
       try {
         const data = await userApi.uploadAvatar(res.tempFilePaths[0])
-        await userStore.updateProfile({ avatar: data.url })
-        userStore.updateAvatar(data.url)
+        userStore.updateAvatar(data.avatar)
         toastRef.value?.show('头像更新成功', { type: 'success' })
       } catch (err) {
         toastRef.value?.show(err.message || '上传失败', { type: 'error' })
@@ -98,7 +105,7 @@ async function handleDeleteAccount() {
         <view class="setting-right">
           <image
             v-if="userStore.userInfo?.avatar"
-            :src="userStore.userInfo?.avatar"
+            :src="avatarUrl(userStore.userInfo?.avatar)"
             class="avatar-preview"
             mode="aspectFill"
           />

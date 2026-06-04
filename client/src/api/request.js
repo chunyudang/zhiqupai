@@ -8,6 +8,9 @@ const BASE_URL = 'http://localhost:3000/api/v1';
 const BASE_URL = 'http://localhost:3000/api/v1';
 // #endif
 
+// 服务端地址（用于拼接静态资源 URL，如头像）
+const SERVER_BASE = 'http://localhost:3000'
+
 // 上传文件的 base URL（不含 /api/v1 前缀，因 uni.uploadFile 需要完整 URL）
 // #ifdef H5
 const UPLOAD_BASE = 'http://localhost:3000';
@@ -252,4 +255,4 @@ function del(url, data = {}, opts = {}) {
   return request({ ...opts, url, method: 'DELETE', data });
 }
 
-export { BASE_URL, UPLOAD_BASE, request, uploadFile, get, post, put, del };
+export { BASE_URL, UPLOAD_BASE, SERVER_BASE, request, uploadFile, get, post, put, del };
