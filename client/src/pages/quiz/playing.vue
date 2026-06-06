@@ -26,6 +26,8 @@ const countdownNum = ref(3) // 3-2-1 倒计时
 const timeLeft = ref(20) // 每题倒计时
 let timerInterval = null
 let countdownInterval = null
+let isSubmitting = false // 防止重复提交
+let isAnswered = false // 当前题是否已作答（防止定时器 + 点击双重触发）
 
 onLoad((options) => {
   levelId.value = Number(options.levelId)
@@ -44,6 +46,7 @@ function clearAllTimers() {
 
 async function startQuiz() {
   pageState.value = 'loading'
+  isSubmitting = false
   try {
     const data = await quizApi.startQuiz(levelId.value)
     attemptId.value = data.attemptId
@@ -78,6 +81,7 @@ async function startQuiz() {
 
 function startQuestion() {
   pageState.value = 'playing'
+  isAnswered = false
   timeLeft.value = QUIZ_CONFIG.TIME_PER_QUESTION
   answers.value[currentIndex.value].timeTaken = 0
 
@@ -88,13 +92,17 @@ function startQuestion() {
     if (timeLeft.value <= 0) {
       // 超时，自动跳到下一题
       clearInterval(timerInterval)
-      nextQuestion()
+      if (!isAnswered) {
+        isAnswered = true
+        nextQuestion()
+      }
     }
   }, 1000)
 }
 
 function selectAnswer(optionIndex) {
-  if (pageState.value !== 'playing') return
+  if (pageState.value !== 'playing' || isAnswered) return
+  isAnswered = true
   clearInterval(timerInterval)
 
   const selectedAnswer = OPTION_LABELS[optionIndex]
@@ -107,6 +115,9 @@ function selectAnswer(optionIndex) {
 }
 
 function nextQuestion() {
+  // 防止在提交中/错误状态下继续推进
+  if (pageState.value !== 'playing') return
+
   if (currentIndex.value < QUIZ_CONFIG.QUESTIONS_PER_LEVEL - 1) {
     currentIndex.value++
     startQuestion()
@@ -116,11 +127,21 @@ function nextQuestion() {
 }
 
 async function submitQuiz() {
+  // 防止定时器 + 点击同时触发导致重复提交
+  if (isSubmitting) return
+  isSubmitting = true
+
   pageState.value = 'submitting'
   clearAllTimers()
 
+  // 兜底：确保每道题的 timeTaken 在 [3, 20] 范围内（后端校验要求）
+  const safeAnswers = answers.value.map((a) => ({
+    ...a,
+    timeTaken: Math.max(QUIZ_CONFIG.MIN_TIME_PER_QUESTION, Math.min(QUIZ_CONFIG.MAX_TIME_PER_QUESTION, a.timeTaken || 3))
+  }))
+
   try {
-    const result = await quizApi.submitQuiz(attemptId.value, answers.value)
+    const result = await quizApi.submitQuiz(attemptId.value, safeAnswers)
     // 将结果保存到 globalData 供 result 页面使用
     const app = getApp()
     app.globalData = app.globalData || {}
@@ -129,10 +150,11 @@ async function submitQuiz() {
       levelId: levelId.value,
       categoryId: categoryId.value,
       questions: questions.value,
-      answers: answers.value
+      answers: safeAnswers
     }
     uni.redirectTo({ url: '/pages/quiz/result' })
   } catch (err) {
+    isSubmitting = false
     pageState.value = 'error'
     errorMsg.value = err.message || '提交失败'
   }

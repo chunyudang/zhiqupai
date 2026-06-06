@@ -1,6 +1,6 @@
 # 识趣派 — API 接口设计文档
 
-> 版本：v1.0 | 基于系统架构设计文档 v1.0
+> 版本：v1.1 | 基于系统架构设计文档 v1.1
 > 状态：已定稿
 
 ---
@@ -82,6 +82,7 @@
 | 30001-30999 | 积分模块 | 30001: 积分不足 |
 | 40001-40999 | 签到模块 | 40001: 已签到, 40002: 补签次数超限 |
 | 50001-50999 | 消息模块 | 50001: 消息不存在 |
+| 60001-60999 | 积分商城 | 60001: 商品不存在, 60002: 积分不足, 60003: 库存不足, 60004: 已达兑换上限, 60005: 今日兑换次数已达上限 |
 | 90001-90999 | 后台管理 | 90001: 管理员不存在, 90002: 无权限 |
 | 99999 | 系统级 | 99999: 服务器内部错误 |
 
@@ -504,7 +505,7 @@
 
 ### 5.2 积分流水 `/points/transactions`
 
-**Query：** `page` / `pageSize` / `source`(quiz/checkin/makeup/all) / `month`(2026-06)
+**Query：** `page` / `pageSize` / `source`(quiz/checkin/makeup/shop/all) / `month`(2026-06)
 
 **Response：**
 ```json
@@ -527,7 +528,7 @@
 }
 ```
 
-**来源类型：** `quiz`(答题) / `checkin`(签到) / `makeup`(补签消耗) / `admin`(后台调整)
+**来源类型：** `quiz`(答题) / `checkin`(签到) / `makeup`(补签消耗) / `admin`(后台调整) / `shop`(商城兑换)
 
 ---
 
@@ -659,7 +660,132 @@
 
 ---
 
-## 第八章：后台管理（AdminModule）
+## 第八章：积分商城模块（ShopModule）
+
+### 接口清单
+
+| # | Method | URL | 说明 | 需鉴权 |
+|---|--------|-----|------|--------|
+| 1 | GET | `/shop/goods` | 商品列表 | 是 |
+| 2 | GET | `/shop/goods/:id` | 商品详情 | 是 |
+| 3 | POST | `/shop/exchange` | 兑换商品 | 是 |
+| 4 | GET | `/shop/orders` | 兑换记录 | 是 |
+
+### 8.1 商品列表 `/shop/goods`
+
+**Query：** `page` / `pageSize` / `category`(code/coupon/virtual/all) / `sort`(price_asc/price_desc)
+
+**Response：**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "list": [
+      {
+        "id": 1,
+        "name": "视频会员月卡",
+        "coverImage": "/uploads/shop/video-vip.png",
+        "category": "code",
+        "pointsPrice": 500,
+        "remainingStock": 18,
+        "stockStatus": "sufficient",
+        "exchangeCount": 32
+      }
+    ],
+    "pagination": { "page": 1, "pageSize": 20, "total": 8, "totalPages": 1 }
+  }
+}
+```
+
+**库存状态：** `sufficient`(>20) / `tense`(5-20) / `low`(<5) / `out`(0)
+
+### 8.2 商品详情 `/shop/goods/:id`
+
+**Response：**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "id": 1,
+    "name": "视频会员月卡",
+    "coverImage": "/uploads/shop/video-vip.png",
+    "description": "某视频平台月度会员兑换码",
+    "category": "code",
+    "pointsPrice": 500,
+    "totalStock": 50,
+    "remainingStock": 18,
+    "stockStatus": "tense",
+    "exchangeLimit": 1,
+    "exchangeCount": 32,
+    "canExchange": true,
+    "exchangeHint": ""
+  }
+}
+```
+
+**canExchange 逻辑：** 积分不足时为 false 并返回 exchangeHint="积分不足，还差 X 积分"；库存为0时为 false 并返回 exchangeHint="已售罄"；已达限兑次数时为 false 并返回 exchangeHint="已达兑换上限"
+
+### 8.3 兑换商品 `/shop/exchange`
+
+**Request：**
+```json
+{
+  "goodsId": 1
+}
+```
+
+**Response：**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "orderId": 1001,
+    "goodsName": "视频会员月卡",
+    "pointsCost": 500,
+    "balanceAfter": 780,
+    "code": "VIP-XXXX-YYYY-ZZZZ",
+    "exchangedAt": "2026-06-06T10:30:00Z"
+  }
+}
+```
+
+**服务端校验：** 积分余额充足 + 库存充足 + 未达限兑次数 + 未达每日上限，服务端原子操作（扣积分 + 扣库存 + 分配兑换码 + 生成订单 + 写入积分流水）
+
+**异常：** 60001(商品不存在) / 60002(积分不足) / 60003(库存不足) / 60004(已达兑换上限) / 60005(今日兑换次数已达上限)
+
+### 8.4 兑换记录 `/shop/orders`
+
+**Query：** `page` / `pageSize`
+
+**Response：**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "list": [
+      {
+        "id": 1001,
+        "goodsId": 1,
+        "goodsName": "视频会员月卡",
+        "coverImage": "/uploads/shop/video-vip.png",
+        "pointsCost": 500,
+        "code": "VIP-XXXX-YYYY-ZZZZ",
+        "status": "success",
+        "exchangedAt": "2026-06-06T10:30:00Z"
+      }
+    ],
+    "pagination": { "page": 1, "pageSize": 20, "total": 3, "totalPages": 1 }
+  }
+}
+```
+
+---
+
+## 第九章：后台管理（AdminModule）
 
 ### 接口清单
 
@@ -692,8 +818,15 @@
 | 19 | PUT | `/configs/:key` | 更新配置 | 是 |
 | **数据看板** |||||
 | 20 | GET | `/dashboard` | 运营数据看板 | 是 |
+| **商城管理** |||||
+| 21 | GET | `/shop/goods` | 商品列表（分页） | 是 |
+| 22 | POST | `/shop/goods` | 新增商品 | 是 |
+| 23 | PUT | `/shop/goods/:id` | 编辑商品 | 是 |
+| 24 | DELETE | `/shop/goods/:id` | 删除商品 | 是 |
+| 25 | POST | `/shop/goods/:id/codes` | 导入兑换码 | 是 |
+| 26 | GET | `/shop/orders` | 兑换记录（分页） | 是 |
 
-### 8.1 管理员登录
+### 9.1 管理员登录
 
 **POST `/auth/login`：**
 ```json
@@ -715,7 +848,7 @@
 }
 ```
 
-### 8.2 学科 CRUD
+### 9.2 学科 CRUD
 
 **POST `/categories`（新增）：**
 ```json
@@ -728,7 +861,7 @@
 }
 ```
 
-### 8.3 题目管理
+### 9.3 题目管理
 
 **POST `/admin/questions`（手动新增）：**
 ```json
@@ -750,7 +883,7 @@
 | levelId | number | 按关卡筛选 |
 | keyword | string | 按题目内容搜索 |
 
-### 8.4 用户管理
+### 9.4 用户管理
 
 **PUT `/users/:id/status`：**
 ```json
@@ -760,7 +893,7 @@
 ```
 `status` 值：`active`(正常) / `banned`(封禁)
 
-### 8.5 消息推送
+### 9.5 消息推送
 
 **POST `/messages`：**
 ```json
@@ -771,7 +904,7 @@
 }
 ```
 
-### 8.6 系统配置
+### 9.6 系统配置
 
 **PUT `/configs/:key`：**
 ```json
@@ -783,7 +916,7 @@
 }
 ```
 
-### 8.7 数据看板
+### 9.7 数据看板
 
 **GET `/dashboard`：**
 ```json
@@ -801,9 +934,40 @@
 }
 ```
 
+### 9.8 商城管理
+
+**POST `/shop/goods`（新增商品）：**
+```json
+{
+  "name": "视频会员月卡",
+  "coverImage": "/uploads/shop/video-vip.png",
+  "description": "某视频平台月度会员兑换码",
+  "category": "code",
+  "pointsPrice": 500,
+  "totalStock": 50,
+  "exchangeLimit": 1,
+  "sortOrder": 1
+}
+```
+
+**POST `/shop/goods/:id/codes`（导入兑换码）：**
+```json
+{
+  "codes": ["VIP-XXXX-YYYY-0001", "VIP-XXXX-YYYY-0002"]
+}
+```
+
+**GET `/shop/orders`（兑换记录查询）：**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| page | number | 默认 1 |
+| pageSize | number | 默认 20 |
+| userId | number | 按用户筛选 |
+| goodsId | number | 按商品筛选 |
+
 ---
 
-## 第九章：评论/点赞（预留，MVP 暂不实现）
+## 第十章：评论/点赞（预留，MVP 暂不实现）
 
 | # | Method | URL | 说明 | MVP状态 |
 |---|--------|-----|------|---------|
@@ -818,7 +982,7 @@
 
 ## 附录：接口汇总
 
-### C 端接口（共 23 个）
+### C 端接口（共 27 个）
 
 | 模块 | 接口数 | 状态 |
 |------|--------|------|
@@ -828,11 +992,12 @@
 | 积分模块 | 2 | MVP 实现 |
 | 签到模块 | 3 | MVP 实现 |
 | 消息模块 | 4 | MVP 实现 |
+| 积分商城 | 4 | MVP 实现 |
 | 评论/点赞 | 4 | 预留 |
-| **合计** | **27** | **MVP 实现 23 个** |
+| **合计** | **31** | **MVP 实现 27 个** |
 
-### 后台管理接口（共 20 个）
+### 后台管理接口（共 26 个）
 
-所有 20 个接口在 MVP 阶段实现。
+所有 26 个接口在 MVP 阶段实现。
 
-**总计：43 个接口（MVP 实现 43 个）**
+**总计：53 个接口（MVP 实现 53 个）**
