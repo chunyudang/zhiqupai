@@ -29,6 +29,13 @@ export const ERROR_CODE = {
   MAKEUP_EXCEEDED: 40002,
   NO_NEED_MAKEUP: 40003,
 
+  // 商城模块
+  SHOP_GOODS_NOT_FOUND: 60001,
+  SHOP_POINTS_INSUFFICIENT: 60002,
+  SHOP_STOCK_INSUFFICIENT: 60003,
+  SHOP_EXCHANGE_LIMIT: 60004,
+  SHOP_DAILY_LIMIT: 60005,
+
   // 系统级
   SERVER_ERROR: 99999
 }
@@ -40,13 +47,15 @@ export const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008
 export const POINTS_SOURCE = {
   QUIZ: 'quiz',
   CHECKIN: 'checkin',
-  MAKEUP: 'makeup'
+  MAKEUP: 'makeup',
+  SHOP: 'shop'
 }
 
 export const POINTS_SOURCE_LABELS = {
   quiz: '答题',
   checkin: '签到',
-  makeup: '补签'
+  makeup: '补签',
+  shop: '商城兑换'
 }
 
 // 难易度
@@ -120,6 +129,43 @@ export const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 // 分页默认值
 export const PAGE_SIZE = 20
+
+// 商品分类
+export const GOODS_CATEGORY = {
+  ALL: 'all',
+  CODE: 'code',
+  COUPON: 'coupon',
+  VIRTUAL: 'virtual'
+}
+
+export const GOODS_CATEGORY_LABELS = {
+  all: '全部',
+  code: '兑换码',
+  coupon: '优惠券',
+  virtual: '虚拟道具'
+}
+
+// 库存状态（与后端 calcStockStatus 对齐）
+export const STOCK_STATUS = {
+  SUFFICIENT: 'sufficient',
+  TENSE: 'tense',
+  LOW: 'low',
+  OUT: 'out'
+}
+
+export const STOCK_STATUS_LABELS = {
+  sufficient: '库存充足',
+  tense: '库存紧张',
+  low: '即将售罄',
+  out: '已售罄'
+}
+
+// 商品排序
+export const GOODS_SORT = {
+  DEFAULT: '',
+  PRICE_ASC: 'price_asc',
+  PRICE_DESC: 'price_desc'
+}
 
 // 签到
 export const CHECKIN_CONFIG = {

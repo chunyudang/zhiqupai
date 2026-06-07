@@ -101,7 +101,26 @@
     {
       "path": "pages/placeholder/shop",
       "style": {
-        "navigationBarTitleText": ""
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/shop/detail",
+      "style": {
+        "navigationBarTitleText": "商品详情"
+      }
+    },
+    {
+      "path": "pages/shop/success",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/shop/orders",
+      "style": {
+        "navigationBarTitleText": "兑换记录"
       }
     }
   ],
