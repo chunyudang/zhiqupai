@@ -111,6 +111,11 @@ async function handleLogout() {
           <text class="menu-text">积分明细</text>
           <text class="menu-arrow">›</text>
         </view>
+        <view class="menu-item" @click="navigateTo('/pages/shop/orders')">
+          <text>🎁</text>
+          <text class="menu-text">兑换记录</text>
+          <text class="menu-arrow">›</text>
+        </view>
         <view class="menu-item" @click="navigateTo('/pages/profile/settings')">
           <text>⚙️</text>
           <text class="menu-text">设置</text>

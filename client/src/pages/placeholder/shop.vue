@@ -111,10 +111,6 @@ function goToDetail(id) {
   uni.navigateTo({ url: `/pages/shop/detail?id=${id}` })
 }
 
-// 跳转兑换记录
-function goToOrders() {
-  uni.navigateTo({ url: '/pages/shop/orders' })
-}
 
 // 跳转积分明细
 function goToPoints() {
@@ -160,11 +156,7 @@ onPullDownRefresh(async () => {
 <template>
   <view class="page">
     <!-- 自定义导航栏 -->
-    <NavBar title="积分商城" :showBack="false">
-      <template #right>
-        <text class="nav-right-btn" @click="goToOrders">记录</text>
-      </template>
-    </NavBar>
+    <NavBar title="积分商城" :showBack="false" />
 
     <!-- 积分余额卡片 -->
     <view class="balance-card" @click="goToPoints">
@@ -277,12 +269,6 @@ onPullDownRefresh(async () => {
   background: #F5F5F5;
 }
 
-/* 导航栏右侧按钮 */
-.nav-right-btn {
-  font-size: 26rpx;
-  color: #FF6B35;
-  white-space: nowrap;
-}
 
 /* 积分余额卡片 */
 .balance-card {
