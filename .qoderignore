@@ -1,0 +1,36 @@
+# 依赖目录
+node_modules/
+
+# 构建产物
+dist/
+build/
+unpackage/
+
+# 包锁文件（体积大，无需 AI 读取）
+package-lock.json
+
+# 数据库文件
+*.db
+*.db-journal
+*.sqlite
+server/data/
+server/prisma/data/
+
+# 上传文件（二进制）
+uploads/
+
+# 日志
+*.log
+logs/
+
+# 测试覆盖率
+coverage/
+
+# IDE / OS
+.idea/
+.vscode/
+.hbuilderx/
+.DS_Store
+
+# Qoder 自身配置
+.qoder/
