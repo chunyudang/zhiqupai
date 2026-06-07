@@ -10,6 +10,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  ShoppingOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -37,6 +38,15 @@ const menuItems = [
     label: '用户管理',
   },
   {
+    key: 'shop',
+    icon: <ShoppingOutlined />,
+    label: '积分商城',
+    children: [
+      { key: '/shop/goods', label: '商品管理' },
+      { key: '/shop/orders', label: '兑换记录' },
+    ],
+  },
+  {
     key: '/messages',
     icon: <BellOutlined />,
     label: '消息推送',
@@ -56,7 +66,10 @@ export default function AppLayout() {
   const { token: themeToken } = theme.useToken()
 
   // 根据当前路径确定选中的菜单项
-  const selectedKey = '/' + location.pathname.split('/')[1]
+  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const selectedKey = pathSegments.length >= 2 && pathSegments[0] === 'shop'
+    ? `/${pathSegments[0]}/${pathSegments[1]}`
+    : '/' + (pathSegments[0] || '')
 
   // 找到展开的 SubMenu
   const openKeys = menuItems

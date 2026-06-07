@@ -11,6 +11,7 @@ import { UserManageController } from './controllers/user-manage.controller'
 import { MessagePushController } from './controllers/message-push.controller'
 import { SystemConfigController } from './controllers/system-config.controller'
 import { DashboardController } from './controllers/dashboard.controller'
+import { ShopManageController } from './controllers/shop-manage.controller'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DashboardController } from './controllers/dashboard.controller'
     MessagePushController,
     SystemConfigController,
     DashboardController,
+    ShopManageController,
   ],
   providers: [AdminService, AdminAuthGuard],
   exports: [AdminService],

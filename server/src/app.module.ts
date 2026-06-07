@@ -11,6 +11,7 @@ import { PointsModule } from './modules/points/points.module'
 import { CheckinModule } from './modules/checkin/checkin.module'
 import { MessageModule } from './modules/message/message.module'
 import { AdminModule } from './modules/admin/admin.module'
+import { ShopModule } from './modules/shop/shop.module'
 import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { HttpExceptionFilter } from './common/filters/http-exception.filter'
 import { AuthGuard } from './common/guards/auth.guard'
@@ -36,6 +37,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe'
     PointsModule,
     CheckinModule,
     MessageModule,
+    ShopModule,
     AdminModule,
   ],
   providers: [

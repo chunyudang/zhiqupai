@@ -19,6 +19,13 @@ async function seedSystemConfigs(prisma: PrismaClient) {
       }),
       description: '签到规则配置：每月最大补签次数和补签消耗积分',
     },
+    {
+      configKey: 'shop_config',
+      configValue: JSON.stringify({
+        dailyExchangeLimit: 5,
+      }),
+      description: '积分商城配置：每日兑换上限等',
+    },
   ]
 
   for (const config of configs) {

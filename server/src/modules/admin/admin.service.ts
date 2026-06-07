@@ -15,6 +15,10 @@ import { QueryQuestionsDto } from './dto/query-questions.dto'
 import { UpdateUserStatusDto } from './dto/update-user-status.dto'
 import { PushMessageDto } from './dto/push-message.dto'
 import { UpdateConfigDto } from './dto/update-config.dto'
+import { CreateGoodsDto } from './dto/create-goods.dto'
+import { UpdateGoodsDto } from './dto/update-goods.dto'
+import { ImportCodesDto } from './dto/import-codes.dto'
+import { QueryShopOrdersDto } from './dto/query-shop-orders.dto'
 
 @Injectable()
 export class AdminService {
@@ -617,6 +621,277 @@ export class AdminService {
           : 0,
       totalCheckIns,
       newCheckInsToday,
+    }
+  }
+
+  // ==================== 商城管理 ====================
+
+  /**
+   * 商品列表（分页）
+   */
+  async listShopGoods(query: { page?: number; pageSize?: number; keyword?: string }) {
+    const page = Number(query.page) || 1
+    const pageSize = Number(query.pageSize) || 20
+    const { keyword } = query
+
+    const where: Record<string, unknown> = {}
+    if (keyword) {
+      where.name = { contains: keyword }
+    }
+
+    const [total, list] = await Promise.all([
+      this.prisma.shopGood.count({ where: where as any }),
+      this.prisma.shopGood.findMany({
+        where: where as any,
+        orderBy: { sortOrder: 'asc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ])
+
+    return {
+      list: list.map((item) => ({
+        ...item,
+        stockStatus:
+          item.remainingStock <= 0
+            ? 'out'
+            : item.remainingStock < 5
+              ? 'low'
+              : item.remainingStock <= 20
+                ? 'tense'
+                : 'sufficient',
+      })),
+      pagination: paginate({ page, pageSize }, total),
+    }
+  }
+
+  /**
+   * 新增商品
+   */
+  async createShopGoods(dto: CreateGoodsDto) {
+    return this.prisma.shopGood.create({
+      data: {
+        name: dto.name,
+        coverImage: dto.coverImage ?? '',
+        description: dto.description ?? '',
+        category: dto.category,
+        pointsPrice: dto.pointsPrice,
+        totalStock: dto.totalStock,
+        remainingStock: dto.totalStock,
+        exchangeLimit: dto.exchangeLimit ?? 1,
+        sortOrder: dto.sortOrder ?? 0,
+      },
+    })
+  }
+
+  /**
+   * 编辑商品
+   */
+  async updateShopGoods(id: number, dto: UpdateGoodsDto) {
+    const goods = await this.prisma.shopGood.findUnique({ where: { id } })
+    if (!goods) {
+      throw new HttpException(
+        { code: 60001, message: '商品不存在', data: null },
+        400,
+      )
+    }
+
+    const updateData: Record<string, unknown> = {}
+
+    if (dto.name !== undefined) updateData.name = dto.name
+    if (dto.coverImage !== undefined) updateData.coverImage = dto.coverImage
+    if (dto.description !== undefined) updateData.description = dto.description
+    if (dto.category !== undefined) updateData.category = dto.category
+    if (dto.pointsPrice !== undefined) updateData.pointsPrice = dto.pointsPrice
+    if (dto.exchangeLimit !== undefined) updateData.exchangeLimit = dto.exchangeLimit
+    if (dto.status !== undefined) updateData.status = dto.status
+    if (dto.sortOrder !== undefined) updateData.sortOrder = dto.sortOrder
+
+    // totalStock 变化时同步调整 remainingStock
+    if (dto.totalStock !== undefined && dto.totalStock !== goods.totalStock) {
+      const stockDiff = dto.totalStock - goods.totalStock
+      updateData.totalStock = dto.totalStock
+      updateData.remainingStock = Math.max(0, goods.remainingStock + stockDiff)
+    }
+
+    return this.prisma.shopGood.update({
+      where: { id },
+      data: updateData,
+    })
+  }
+
+  /**
+   * 删除商品
+   */
+  async deleteShopGoods(id: number) {
+    const goods = await this.prisma.shopGood.findUnique({ where: { id } })
+    if (!goods) {
+      throw new HttpException(
+        { code: 60001, message: '商品不存在', data: null },
+        400,
+      )
+    }
+
+    const orderCount = await this.prisma.shopOrder.count({ where: { goodsId: id } })
+    if (orderCount > 0) {
+      throw new HttpException(
+        { code: 90001, message: '该商品已有兑换记录，无法删除', data: null },
+        400,
+      )
+    }
+
+    await this.prisma.shopGood.delete({ where: { id } })
+    return null
+  }
+
+  /**
+   * 导入兑换码
+   */
+  async importGoodsCodes(id: number, dto: ImportCodesDto) {
+    const goods = await this.prisma.shopGood.findUnique({ where: { id } })
+    if (!goods) {
+      throw new HttpException(
+        { code: 60001, message: '商品不存在', data: null },
+        400,
+      )
+    }
+
+    if (goods.category !== 'code') {
+      throw new HttpException(
+        { code: 90001, message: '该商品类型不支持导入兑换码', data: null },
+        400,
+      )
+    }
+
+    // 批量插入兑换码（逐个插入跳过重复）
+    let importedCount = 0
+    for (const code of dto.codes) {
+      try {
+        await this.prisma.shopGoodCode.create({
+          data: {
+            goodsId: id,
+            code,
+            status: 'available',
+          },
+        })
+        importedCount++
+      } catch {
+        // 兑换码已存在，跳过
+      }
+    }
+
+    // 更新商品库存（增加导入数量）
+    await this.prisma.shopGood.update({
+      where: { id },
+      data: {
+        totalStock: { increment: importedCount },
+        remainingStock: { increment: importedCount },
+      },
+    })
+
+    return { importedCount }
+  }
+
+  /**
+   * 兑换记录列表（分页 + 筛选）
+   */
+  async listShopOrders(query: QueryShopOrdersDto) {
+    const page = Number(query.page) || 1
+    const pageSize = Number(query.pageSize) || 20
+    const userId = query.userId ? Number(query.userId) : undefined
+    const goodsId = query.goodsId ? Number(query.goodsId) : undefined
+
+    const where: Record<string, unknown> = {}
+    if (userId) where.userId = userId
+    if (goodsId) where.goodsId = goodsId
+
+    const [total, list] = await Promise.all([
+      this.prisma.shopOrder.count({ where: where as any }),
+      this.prisma.shopOrder.findMany({
+        where: where as any,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          user: {
+            select: { id: true, nickname: true, phoneLastFour: true },
+          },
+          goods: {
+            select: { id: true, name: true },
+          },
+        },
+      }),
+    ])
+
+    return {
+      list,
+      pagination: paginate({ page, pageSize }, total),
+    }
+  }
+
+  /**
+   * 商城统计看板
+   */
+  async getShopDashboard() {
+    const [
+      totalGoods,
+      activeGoods,
+      totalOrders,
+      pointsAgg,
+      lowStockGoods,
+      topGoods,
+      recentOrders,
+    ] = await Promise.all([
+      // 商品总数
+      this.prisma.shopGood.count(),
+      // 上架商品数
+      this.prisma.shopGood.count({ where: { status: 'active' } }),
+      // 总兑换次数
+      this.prisma.shopOrder.count(),
+      // 积分消耗总额
+      this.prisma.shopOrder.aggregate({ _sum: { pointsCost: true } }),
+      // 库存预警商品（剩余库存 <= 5 且上架中）
+      this.prisma.shopGood.findMany({
+        where: { remainingStock: { lte: 5 }, status: 'active' },
+        select: { id: true, name: true, remainingStock: true },
+        orderBy: { remainingStock: 'asc' },
+      }),
+      // 热门商品 TOP5
+      this.prisma.shopGood.findMany({
+        orderBy: { exchangeCount: 'desc' },
+        take: 5,
+        select: { id: true, name: true, exchangeCount: true, pointsPrice: true },
+      }),
+      // 最近 5 笔兑换
+      this.prisma.shopOrder.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          pointsCost: true,
+          createdAt: true,
+          user: { select: { nickname: true } },
+          goods: { select: { name: true } },
+        },
+      }),
+    ])
+
+    return {
+      totalGoods,
+      activeGoods,
+      totalOrders,
+      totalPointsConsumed: pointsAgg._sum.pointsCost ?? 0,
+      lowStockGoods: lowStockGoods.map((g) => ({
+        ...g,
+        stockStatus:
+          g.remainingStock <= 0
+            ? 'out'
+            : g.remainingStock < 5
+              ? 'low'
+              : 'tense',
+      })),
+      topGoods,
+      recentOrders,
     }
   }
 }

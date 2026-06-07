@@ -30,6 +30,7 @@ model User {
   messages     Message[]
   comments     Comment[]
   likes        Like[]
+  shopOrders   ShopOrder[]
 
   @@map("users")
 }
@@ -166,7 +167,7 @@ model Point {
   userId       Int
   amount       Int      // 正数为获得，负数为消耗
   balanceAfter Int      // 交易后余额
-  source       String   // quiz | checkin | makeup | admin
+  source       String   // quiz | checkin | makeup | admin | shop
   referenceId  String   @default("") // 关联的业务 ID（如 attemptId）
   description  String   @default("")
   createdAt    DateTime @default(now())
@@ -251,4 +252,62 @@ model SystemConfig {
   createdAt DateTime @default(now())
 
   @@map("system_configs")
+}
+
+// ========== 积分商城 ==========
+
+model ShopGood {
+  id             Int      @id @default(autoincrement())
+  name           String
+  coverImage     String   @default("")
+  description    String   @default("")
+  category       String   @default("code") // code | coupon | virtual
+  pointsPrice    Int
+  totalStock     Int      @default(0)
+  remainingStock Int      @default(0)
+  exchangeLimit  Int      @default(1)
+  status         String   @default("active") // active | inactive
+  exchangeCount  Int      @default(0)
+  sortOrder      Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  codes  ShopGoodCode[]
+  orders ShopOrder[]
+
+  @@map("shop_goods")
+}
+
+model ShopGoodCode {
+  id         Int       @id @default(autoincrement())
+  goodsId    Int
+  code       String    @unique
+  status     String    @default("available") // available | assigned
+  assignedTo Int?
+  assignedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  goods ShopGood @relation(fields: [goodsId], references: [id], onDelete: Cascade)
+
+  @@index([goodsId, status])
+  @@map("shop_good_codes")
+}
+
+model ShopOrder {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  goodsId      Int
+  pointsCost   Int
+  balanceAfter Int
+  code         String   @default("")
+  status       String   @default("success") // success | refunded
+  createdAt    DateTime @default(now())
+
+  user  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goods ShopGood @relation(fields: [goodsId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([goodsId])
+  @@map("shop_orders")
 }

@@ -181,3 +181,92 @@ export interface DashboardStats {
   totalCheckIns: number
   newCheckInsToday: number
 }
+
+// ===== 积分商城 =====
+export type GoodsCategory = 'code' | 'coupon' | 'virtual'
+export type GoodsStatus = 'active' | 'inactive'
+export type StockStatus = 'sufficient' | 'tense' | 'low' | 'out'
+
+export interface ShopGood {
+  id: number
+  name: string
+  coverImage: string
+  description: string
+  category: GoodsCategory
+  pointsPrice: number
+  totalStock: number
+  remainingStock: number
+  exchangeLimit: number
+  exchangeCount: number
+  sortOrder: number
+  status: GoodsStatus
+  stockStatus: StockStatus
+  createdAt: string
+}
+
+export interface CreateGoodsParams {
+  name: string
+  coverImage?: string
+  description?: string
+  category: GoodsCategory
+  pointsPrice: number
+  totalStock: number
+  exchangeLimit?: number
+  sortOrder?: number
+}
+
+export interface UpdateGoodsParams {
+  name?: string
+  coverImage?: string
+  description?: string
+  category?: GoodsCategory
+  pointsPrice?: number
+  totalStock?: number
+  exchangeLimit?: number
+  status?: GoodsStatus
+  sortOrder?: number
+}
+
+export interface QueryGoodsParams {
+  page?: number
+  pageSize?: number
+  keyword?: string
+}
+
+export interface ShopOrder {
+  id: number
+  userId: number
+  goodsId: number
+  pointsCost: number
+  balanceAfter: number
+  code: string
+  status: string
+  createdAt: string
+  user: { id: number; nickname: string; phoneLastFour: string }
+  goods: { id: number; name: string }
+}
+
+export interface QueryOrdersParams {
+  page?: number
+  pageSize?: number
+  userId?: number
+  goodsId?: number
+}
+
+export interface ImportCodesParams {
+  codes: string[]
+}
+
+export interface ShopDashboardStats {
+  totalGoods: number
+  activeGoods: number
+  totalOrders: number
+  totalPointsConsumed: number
+  lowStockGoods: Array<{ id: number; name: string; remainingStock: number; stockStatus: string }>
+  topGoods: Array<{ id: number; name: string; exchangeCount: number; pointsPrice: number }>
+  recentOrders: Array<{
+    id: number; pointsCost: number; createdAt: string;
+    user: { nickname: string }
+    goods: { name: string }
+  }>
+}

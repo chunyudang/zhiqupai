@@ -12,6 +12,8 @@ import Questions from '@/pages/Questions'
 import Users from '@/pages/Users'
 import Messages from '@/pages/Messages'
 import System from '@/pages/System'
+import ShopGoods from '@/pages/Shop/Goods'
+import ShopOrders from '@/pages/Shop/Orders'
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
                 <Route path="/levels" element={<Levels />} />
                 <Route path="/questions" element={<Questions />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/shop/goods" element={<ShopGoods />} />
+                <Route path="/shop/orders" element={<ShopOrders />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/system" element={<System />} />
               </Route>
