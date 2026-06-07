@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Form, Input, Button, Alert, Modal } from 'antd'
+import { Form, Input, Button, Alert, App } from 'antd'
 import { pushMessage } from '@/api/messages'
 import type { PushMessageParams } from '@/types'
 
 const { TextArea } = Input
 
 export default function Messages() {
+  const { modal } = App.useApp()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
@@ -13,7 +14,7 @@ export default function Messages() {
     setLoading(true)
     try {
       const result = await pushMessage(values)
-      Modal.success({
+      modal.success({
         title: '推送成功',
         content: `已成功推送给 ${result.pushedCount} 位用户`,
       })

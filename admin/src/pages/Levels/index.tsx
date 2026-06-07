@@ -35,15 +35,19 @@ export default function Levels() {
 
   const openCreateModal = () => {
     setEditingLevel(null)
-    form.resetFields()
-    form.setFieldsValue({ passScore: 4, difficulty: 'medium' })
     setModalVisible(true)
+    setTimeout(() => {
+      form.resetFields()
+      form.setFieldsValue({ passScore: 4, difficulty: 'medium' })
+    })
   }
 
   const openEditModal = (record: Level) => {
     setEditingLevel(record)
-    form.setFieldsValue(record)
     setModalVisible(true)
+    setTimeout(() => {
+      form.setFieldsValue(record)
+    })
   }
 
   const handleSubmit = async () => {

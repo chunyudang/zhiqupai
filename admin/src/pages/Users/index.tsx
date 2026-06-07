@@ -52,7 +52,7 @@ export default function Users() {
       title: '头像',
       dataIndex: 'avatar',
       width: 60,
-      render: (avatar: string) => <Avatar src={avatar} size={32} />,
+      render: (avatar: string) => <Avatar src={avatar || undefined} size={32} />,
     },
     { title: '昵称', dataIndex: 'nickname', width: 120 },
     {

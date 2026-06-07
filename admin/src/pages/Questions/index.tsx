@@ -68,9 +68,11 @@ export default function Questions() {
 
   const openCreateModal = () => {
     setEditingQuestion(null)
-    form.resetFields()
-    form.setFieldsValue({ sortOrder: 0 })
     setModalVisible(true)
+    setTimeout(() => {
+      form.resetFields()
+      form.setFieldsValue({ sortOrder: 0 })
+    })
   }
 
   const openEditModal = (record: Question) => {
@@ -83,18 +85,20 @@ export default function Questions() {
         optionsArr = parsed.slice(0, 4)
       }
     } catch { /* ignore */ }
-    form.setFieldsValue({
-      levelId: record.levelId,
-      content: record.content,
-      optionA: optionsArr[0] || '',
-      optionB: optionsArr[1] || '',
-      optionC: optionsArr[2] || '',
-      optionD: optionsArr[3] || '',
-      correctAnswer: record.correctAnswer,
-      explanation: record.explanation,
-      sortOrder: record.sortOrder,
-    })
     setModalVisible(true)
+    setTimeout(() => {
+      form.setFieldsValue({
+        levelId: record.levelId,
+        content: record.content,
+        optionA: optionsArr[0] || '',
+        optionB: optionsArr[1] || '',
+        optionC: optionsArr[2] || '',
+        optionD: optionsArr[3] || '',
+        correctAnswer: record.correctAnswer,
+        explanation: record.explanation,
+        sortOrder: record.sortOrder,
+      })
+    })
   }
 
   const handleSubmit = async () => {

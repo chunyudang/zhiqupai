@@ -84,25 +84,29 @@ export default function ShopGoods() {
 
   const openCreateModal = () => {
     setEditingGoods(null)
-    form.resetFields()
-    form.setFieldsValue({ exchangeLimit: 1, sortOrder: 0 })
     setModalVisible(true)
+    setTimeout(() => {
+      form.resetFields()
+      form.setFieldsValue({ exchangeLimit: 1, sortOrder: 0 })
+    })
   }
 
   const openEditModal = (record: ShopGood) => {
     setEditingGoods(record)
-    form.setFieldsValue({
-      name: record.name,
-      coverImage: record.coverImage,
-      description: record.description,
-      category: record.category,
-      pointsPrice: record.pointsPrice,
-      totalStock: record.totalStock,
-      exchangeLimit: record.exchangeLimit,
-      sortOrder: record.sortOrder,
-      status: record.status,
-    })
     setModalVisible(true)
+    setTimeout(() => {
+      form.setFieldsValue({
+        name: record.name,
+        coverImage: record.coverImage,
+        description: record.description,
+        category: record.category,
+        pointsPrice: record.pointsPrice,
+        totalStock: record.totalStock,
+        exchangeLimit: record.exchangeLimit,
+        sortOrder: record.sortOrder,
+        status: record.status,
+      })
+    })
   }
 
   const handleSubmit = async () => {

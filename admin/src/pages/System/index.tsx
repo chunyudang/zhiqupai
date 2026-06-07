@@ -31,11 +31,13 @@ export default function System() {
     try {
       displayValue = JSON.stringify(JSON.parse(record.configValue), null, 2)
     } catch { /* ignore */ }
-    form.setFieldsValue({
-      configValue: displayValue,
-      description: record.description,
-    })
     setModalVisible(true)
+    setTimeout(() => {
+      form.setFieldsValue({
+        configValue: displayValue,
+        description: record.description,
+      })
+    })
   }
 
   const handleSubmit = async () => {

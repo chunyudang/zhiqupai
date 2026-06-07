@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, App as AntdApp } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { AuthProvider } from '@/hooks/useAuth'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -25,6 +25,7 @@ function App() {
         },
       }}
     >
+      <AntdApp>
       <BrowserRouter>
         <AuthProvider>
           <Routes>
@@ -46,6 +47,7 @@ function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
+      </AntdApp>
     </ConfigProvider>
   )
 }

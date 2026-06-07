@@ -25,15 +25,19 @@ export default function Categories() {
 
   const openCreateModal = () => {
     setEditingCategory(null)
-    form.resetFields()
-    form.setFieldsValue({ sortOrder: 0 })
     setModalVisible(true)
+    setTimeout(() => {
+      form.resetFields()
+      form.setFieldsValue({ sortOrder: 0 })
+    })
   }
 
   const openEditModal = (record: Category) => {
     setEditingCategory(record)
-    form.setFieldsValue(record)
     setModalVisible(true)
+    setTimeout(() => {
+      form.setFieldsValue(record)
+    })
   }
 
   const handleSubmit = async () => {
