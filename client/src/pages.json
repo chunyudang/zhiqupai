@@ -27,7 +27,7 @@
     {
       "path": "pages/quiz/playing",
       "style": {
-        "navigationStyle": "custom",
+        "navigationBarTitleText": "答题中",
         "disableScroll": true
       }
     },

@@ -3,7 +3,6 @@ import { ref, computed, onBeforeUnmount } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { quizApi } from '@/api/quiz'
 import { QUIZ_CONFIG, OPTION_LABELS } from '@/utils/constants'
-import NavBar from '@/components/NavBar.vue'
 
 // 去掉选项文本中的 A./A、/A: 等前缀标识
 function cleanOptionText(options) {
@@ -167,9 +166,7 @@ const progressPercent = computed(() => {
 </script>
 
 <template>
-  <view class="playing-page">
-    <NavBar title="答题中" @back="uni.navigateBack()" />
-
+  <view class="page">
     <!-- 加载中 -->
     <view v-if="pageState === 'loading'" class="state-box">
       <view class="spinner" />
@@ -234,7 +231,7 @@ const progressPercent = computed(() => {
 </template>
 
 <style scoped>
-.playing-page {
+.page {
   min-height: 100vh;
   background: #F5F5F5;
 }
