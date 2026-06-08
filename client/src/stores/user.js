@@ -4,6 +4,8 @@
 
 import { ref, computed } from 'vue';
 import { getRefreshToken, setRefreshToken, removeRefreshToken } from '@/utils/token';
+import { authApi } from '@/api/auth';
+import { userApi } from '@/api/user';
 
 // ---- 内部响应式状态 ----
 const accessToken = ref(null);    // 仅内存，不持久化
@@ -25,7 +27,6 @@ async function autoLogin() {
   refreshToken.value = storedToken;
 
   try {
-    const { authApi } = await import('@/api/auth');
     const res = await authApi.refreshToken(storedToken);
     accessToken.value = res.accessToken;
     await fetchProfile();
@@ -40,7 +41,6 @@ async function autoLogin() {
 
 /** 登录 */
 async function login(phone, password) {
-  const { authApi } = await import('@/api/auth');
   const res = await authApi.login(phone, password);
   accessToken.value = res.accessToken;
   refreshToken.value = res.refreshToken;
@@ -51,7 +51,6 @@ async function login(phone, password) {
 
 /** 注册 */
 async function register(phone, password, nickname) {
-  const { authApi } = await import('@/api/auth');
   const res = await authApi.register(phone, password, nickname);
   accessToken.value = res.accessToken;
   refreshToken.value = res.refreshToken;
@@ -63,7 +62,6 @@ async function register(phone, password, nickname) {
 /** 退出登录 */
 async function logout() {
   try {
-    const { authApi } = await import('@/api/auth');
     await authApi.logout();
   } catch {
     // 即使服务端失败也清除本地状态
@@ -73,7 +71,6 @@ async function logout() {
 
 /** 获取用户信息 */
 async function fetchProfile() {
-  const { userApi } = await import('@/api/user');
   const res = await userApi.getProfile();
   userInfo.value = res;
   return res;
@@ -81,7 +78,6 @@ async function fetchProfile() {
 
 /** 更新用户信息 */
 async function updateProfile(data) {
-  const { userApi } = await import('@/api/user');
   const res = await userApi.updateProfile(data);
   userInfo.value = { ...userInfo.value, ...res };
   return res;
@@ -100,7 +96,6 @@ async function refreshAccessToken() {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
-      const { authApi } = await import('@/api/auth');
       const res = await authApi.refreshToken(refreshToken.value);
       accessToken.value = res.accessToken;
       return res.accessToken;

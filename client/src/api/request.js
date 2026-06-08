@@ -3,8 +3,10 @@
 
 import { useUserStore } from '@/stores/user'
 
-// userStore 为 getter 对象，accessToken/refreshToken 均为解包后的原始值（string/null）
-const userStore = useUserStore()
+// 惰性获取 userStore，避免循环依赖（request → stores/user → api/auth → request）
+function getUserStore() {
+  return useUserStore()
+}
 
 // #ifdef H5
 const BASE_URL = 'http://localhost:3000/api/v1';
@@ -51,6 +53,7 @@ function request(options = {}) {
 
       if (!skipAuth) {
         // 从 userStore 获取 accessToken（getter 自动解包）
+        const userStore = getUserStore();
         const token = retryToken || userStore?.accessToken;
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
@@ -119,6 +122,7 @@ function handleTokenRefresh(body, resolve, reject, retryRequest) {
 
   isRefreshing = true;
 
+  const userStore = getUserStore();
   if (!userStore?.refreshToken) {
     isRefreshing = false;
     userStore?.clearAuth();
@@ -193,7 +197,7 @@ function uploadFile(filePath, url = '/api/v1/users/upload/avatar') {
       filePath,
       name: 'file',
       header: {
-        Authorization: `Bearer ${userStore?.accessToken || ''}`,
+        Authorization: `Bearer ${getUserStore()?.accessToken || ''}`,
       },
       success: (res) => {
         try {

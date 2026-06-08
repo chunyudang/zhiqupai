@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  ParseIntPipe,
-} from '@nestjs/common'
+import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
 import { QuizService } from './quiz.service'
 import { StartQuizDto } from './dto/start-quiz.dto'
@@ -35,19 +28,13 @@ export class QuizController {
 
   @Post('quiz/start')
   @ApiOperation({ summary: '开始答题' })
-  async startQuiz(
-    @CurrentUser() user: JwtUserPayload,
-    @Body() dto: StartQuizDto,
-  ) {
+  async startQuiz(@CurrentUser() user: JwtUserPayload, @Body() dto: StartQuizDto) {
     return this.quizService.startQuiz(user.sub, dto)
   }
 
   @Post('quiz/submit')
   @ApiOperation({ summary: '提交答案' })
-  async submitQuiz(
-    @CurrentUser() user: JwtUserPayload,
-    @Body() dto: SubmitQuizDto,
-  ) {
+  async submitQuiz(@CurrentUser() user: JwtUserPayload, @Body() dto: SubmitQuizDto) {
     return this.quizService.submitQuiz(user.sub, dto)
   }
 

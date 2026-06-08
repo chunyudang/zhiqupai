@@ -145,10 +145,41 @@ function saveUserInfo(data) {
 2. **禁止使用 Pinia**（`defineStore` / `createPinia`），微信小程序不支持。本地数据缓存统一使用 `uni.setStorageSync` / `uni.getStorageSync` 等 uni 原生存储 API
 3. 底部 Tab 共5个：首页 | 竞猜(预留) | 商城(预留) | 消息 | 我的
 4. 竞猜和商城 Tab MVP 阶段点击后弹出「功能完善中……」提示
-5. 全局导航栏统一样式，左侧返回按钮+中间标题
-6. 骨架屏 + 加载中动画处理加载状态
-7. 统一的空状态组件和错误状态展示
-8. API 请求通过 api/request.js 拦截器统一处理 Token 刷新和401
+5. 骨架屏 + 加载中动画处理加载状态
+6. 统一的空状态组件和错误状态展示
+7. API 请求通过 api/request.js 拦截器统一处理 Token 刷新和401
+
+## 导航栏与页面路由管理
+
+### 导航栏统一管理
+所有页面统一使用 **pages.json 原生导航栏**，不使用自定义导航栏组件（NavBar.vue 仅用于极少数特殊页面）。
+
+**pages.json 配置示例：**
+```json
+{
+  "path": "pages/quiz/result",
+  "style": {
+    "navigationBarTitleText": "答题结果"
+  }
+}
+```
+
+### 页面栈与跳转规范
+| 场景 | API | 说明 |
+|------|-----|------|
+| 普通页面跳转 | `uni.navigateTo` | 入栈，页面栈深度 +1 |
+| 返回上一页 | `uni.navigateBack` | 出栈，页面栈深度 -1 |
+| Tab 页跳转 | `uni.switchTab` | 跳转到 tabBar 页面 |
+| 重定向（替换当前页） | `uni.redirectTo` | 不增加栈深度 |
+
+### 返回按钮行为
+- 页面栈深度 > 1 时，原生导航栏**自动显示左侧返回按钮**
+- 点击返回按钮默认执行 `uni.navigateBack()`，无需手动绑定
+- Tab 页（首页/消息/我的等）无返回按钮
+
+### 禁止事项
+- **禁止**在常规业务页面使用 `"navigationStyle": "custom"` + 自定义 NavBar 组件的组合，会导致页面滚动异常
+- 仅在需要全屏自定义 UI 的特殊页面（如答题进行页 `playing.vue`）才使用 `"navigationStyle": "custom"`
 
 ## Token 与自动登录
 - accessToken 仅存内存（Vue `ref` 响应式变量，不持久化）

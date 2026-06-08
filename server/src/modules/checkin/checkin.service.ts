@@ -256,9 +256,7 @@ export class CheckinService {
       consecutiveDays = await this.countConsecutiveDays(userId, today)
     } else {
       // 今日未签到，尝试从昨天往前回溯
-      const yesterday = this.formatDate(
-        new Date(new Date(today).getTime() - 86400000),
-      )
+      const yesterday = this.formatDate(new Date(new Date(today).getTime() - 86400000))
       const yesterdayRecord = checkinMap.get(yesterday)
       if (yesterdayRecord && yesterdayRecord.isMakeup === 0) {
         consecutiveDays = await this.countConsecutiveDays(userId, yesterday)
@@ -289,9 +287,7 @@ export class CheckinService {
    * 计算今日签到应得积分（基于连续签到天数）
    */
   private async calculateCheckinPoints(userId: number, today: string): Promise<number> {
-    const yesterday = this.formatDate(
-      new Date(new Date(today).getTime() - 86400000),
-    )
+    const yesterday = this.formatDate(new Date(new Date(today).getTime() - 86400000))
 
     // 查询昨天是否签到（仅正常签到，不含补签）
     const yesterdayCheckin = await this.prisma.checkIn.findUnique({
@@ -371,9 +367,7 @@ export class CheckinService {
    * 计算某日期若签到的应得积分
    */
   private async getDatePoints(userId: number, date: string): Promise<number> {
-    const prevDate = this.formatDate(
-      new Date(new Date(date).getTime() - 86400000),
-    )
+    const prevDate = this.formatDate(new Date(new Date(date).getTime() - 86400000))
 
     const prevCheckin = await this.prisma.checkIn.findUnique({
       where: {

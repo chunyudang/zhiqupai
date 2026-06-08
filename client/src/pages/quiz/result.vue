@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { QUIZ_CONFIG, OPTION_LABELS } from '@/utils/constants'
-import NavBar from '@/components/NavBar.vue'
 
 const levelId = ref(0)
 const categoryId = ref(0)
@@ -42,6 +41,7 @@ function goBack() {
   uni.navigateBack()
 }
 
+
 // 合并题目和答案数据用于展示
 const details = computed(() => {
   if (!questions.value.length || !answers.value.length) return []
@@ -60,9 +60,7 @@ const details = computed(() => {
 </script>
 
 <template>
-  <view class="result-page">
-    <NavBar title="答题结果" />
-
+  <view class="page">
     <view v-if="result" class="result-content">
       <!-- 结果头部 -->
       <view class="result-header" :class="{ passed: result.isPassed, failed: !result.isPassed }">
@@ -131,7 +129,7 @@ const details = computed(() => {
 </template>
 
 <style scoped>
-.result-page {
+.page {
   min-height: 100vh;
   background: #F5F5F5;
 }

@@ -53,6 +53,7 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (mode.value === 'login') {
+      console.log('login=== start');
       const res = await userStore.login(phone.value, password.value);
       //console.log('login===', res);
       toastRef.value?.show('登录成功', { type: 'success' })

@@ -47,13 +47,7 @@ async function fetchReview() {
   <view class="page">
     <Skeleton v-if="loading" type="list" :count="3" />
 
-    <EmptyState
-      v-else-if="loadError"
-      message="加载失败"
-      :showAction="true"
-      actionText="重试"
-      @action="fetchReview"
-    />
+    <EmptyState v-else-if="loadError" message="加载失败" :showAction="true" actionText="重试" @action="fetchReview" />
 
     <view v-else-if="review" class="review-content">
       <!-- 回顾头部 -->
@@ -67,12 +61,8 @@ async function fetchReview() {
 
       <!-- 题目列表（含正确答案和解释） -->
       <view class="question-list">
-        <view
-          v-for="(item, idx) in review.details"
-          :key="item.questionId"
-          class="question-card"
-          :class="{ correct: item.isCorrect, wrong: !item.isCorrect }"
-        >
+        <view v-for="(item, idx) in review.details" :key="item.questionId" class="question-card"
+          :class="{ correct: item.isCorrect, wrong: !item.isCorrect }">
           <view class="q-header">
             <text class="q-num">第{{ idx + 1 }}题</text>
             <text class="q-result">{{ item.isCorrect ? '✓' : '✕' }}</text>
@@ -80,16 +70,11 @@ async function fetchReview() {
           <text class="q-content">{{ item.content }}</text>
 
           <view class="q-options">
-            <view
-              v-for="(opt, oi) in item.options"
-              :key="oi"
-              class="q-option"
-              :class="{
-                'is-correct': OPTION_LABELS[oi] === item.correctAnswer,
-                'is-selected': OPTION_LABELS[oi] === item.selectedAnswer,
-                'is-wrong-selected': OPTION_LABELS[oi] === item.selectedAnswer && !item.isCorrect
-              }"
-            >
+            <view v-for="(opt, oi) in item.options" :key="oi" class="q-option" :class="{
+              'is-correct': OPTION_LABELS[oi] === item.correctAnswer,
+              'is-selected': OPTION_LABELS[oi] === item.selectedAnswer,
+              'is-wrong-selected': OPTION_LABELS[oi] === item.selectedAnswer && !item.isCorrect
+            }">
               <text class="option-dot">{{ OPTION_LABELS[oi] }}</text>
               <text class="option-text">{{ opt }}</text>
               <text v-if="OPTION_LABELS[oi] === item.correctAnswer" class="option-mark">✓</text>
@@ -182,8 +167,13 @@ async function fetchReview() {
   font-weight: bold;
 }
 
-.question-card.correct .q-result { color: #4CAF50; }
-.question-card.wrong .q-result { color: #F44336; }
+.question-card.correct .q-result {
+  color: #4CAF50;
+}
+
+.question-card.wrong .q-result {
+  color: #F44336;
+}
 
 .q-content {
   font-size: 28rpx;

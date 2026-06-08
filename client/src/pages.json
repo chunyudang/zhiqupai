@@ -34,8 +34,7 @@
     {
       "path": "pages/quiz/result",
       "style": {
-        "navigationStyle": "custom",
-        "disableScroll": true
+        "navigationBarTitleText": "答题结果"
       }
     },
     {
