@@ -1,42 +1,37 @@
 // 识趣派 — HTTP 请求封装
 // 四端统一：H5 开发走 Vite proxy，其他端直连
 
+import { useUserStore } from '@/stores/user'
+
+// userStore 为 getter 对象，accessToken/refreshToken 均为解包后的原始值（string/null）
+const userStore = useUserStore()
+
 // #ifdef H5
 const BASE_URL = 'http://localhost:3000/api/v1';
 // #endif
 // #ifndef H5
-const BASE_URL = 'http://localhost:3000/api/v1';
+const BASE_URL = 'http://192.168.50.143:3000/api/v1';
 // #endif
 
 // 服务端地址（用于拼接静态资源 URL，如头像）
+// #ifdef H5
 const SERVER_BASE = 'http://localhost:3000'
+// #endif
+// #ifndef H5
+const SERVER_BASE = 'http://192.168.50.143:3000'
+// #endif
 
 // 上传文件的 base URL（不含 /api/v1 前缀，因 uni.uploadFile 需要完整 URL）
 // #ifdef H5
 const UPLOAD_BASE = 'http://localhost:3000';
 // #endif
 // #ifndef H5
-const UPLOAD_BASE = 'http://localhost:3000';
+const UPLOAD_BASE = 'http://192.168.50.143:3000';
 // #endif
 
 const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008];
 let isRefreshing = false;
 let refreshQueue = [];
-let _store = null;
-
-/**
- * 设置 store 引用（由 main.js 初始化时调用，避免循环依赖）
- */
-export function setRequestStore(store) {
-  _store = store
-}
-
-/**
- * 获取 store 引用
- */
-function getStore() {
-  return _store
-}
 
 /**
  * 执行请求
@@ -55,8 +50,7 @@ function request(options = {}) {
       const headers = { 'Content-Type': 'application/json', ...header };
 
       if (!skipAuth) {
-        // 从 Pinia store 获取 accessToken
-        const userStore = getStore();
+        // 从 userStore 获取 accessToken（getter 自动解包）
         const token = retryToken || userStore?.accessToken;
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
@@ -125,7 +119,6 @@ function handleTokenRefresh(body, resolve, reject, retryRequest) {
 
   isRefreshing = true;
 
-  const userStore = getStore();
   if (!userStore?.refreshToken) {
     isRefreshing = false;
     userStore?.clearAuth();
@@ -194,8 +187,6 @@ function navigateToLogin() {
  * @returns {Promise}
  */
 function uploadFile(filePath, url = '/api/v1/users/upload/avatar') {
-  const userStore = getStore();
-
   return new Promise((resolve, reject) => {
     uni.uploadFile({
       url: `${UPLOAD_BASE}${url}`,

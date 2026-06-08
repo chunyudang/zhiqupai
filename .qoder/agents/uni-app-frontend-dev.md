@@ -9,9 +9,11 @@ tools: Bash, Read, Write, Edit, Glob, Grep
 ## 技术栈
 - 框架：uni-app (Vue3)
 - 端限制：MVP 阶段仅支持微信小程序
-- 状态管理：Vue3 响应式（Composition API）
+- 状态管理：Vue3 响应式（Composition API）+ uni 原生存储 API
 - 页面路由：pages.json 配置
 - API 请求：uni.request 封装
+
+> **重要：微信小程序环境不支持 Pinia（`import { defineStore } from 'pinia'` 会报错），禁止使用 Pinia 进行本地数据缓存和状态持久化。所有本地存储必须使用 uni 原生存储 API。**
 
 ## 目录结构（client/）
 ```
@@ -42,6 +44,9 @@ components/
 ├── Skeleton.vue
 └── Toast.vue
 
+stores/                       # ❗已废弃，微信小程序不支持 Pinia，请勿新增
+                                # 本地缓存统一使用 uni 存储 API（见下方规范）
+
 api/
 ├── request.js                # 请求封装 + 拦截器
 ├── auth.js                   # 登录/注册/Token刷新
@@ -56,18 +61,100 @@ utils/
 └── validators.js             # 表单校验
 ```
 
+## 本地数据缓存规范（禁止使用 Pinia）
+
+微信小程序不支持 Pinia，所有需要持久化到本地的数据必须使用 uni 原生存储 API：
+
+### 写入数据
+```js
+// 同步写入（推荐，简单场景）
+uni.setStorageSync('key', data)
+
+// 异步写入
+uni.setStorage({
+  key: 'key',
+  data: data,
+  success() { console.log('存储成功') }
+})
+```
+
+### 读取数据
+```js
+// 同步读取（推荐）
+const data = uni.getStorageSync('key')
+
+// 异步读取
+uni.getStorage({
+  key: 'key',
+  success(res) { console.log(res.data) }
+})
+```
+
+### 删除数据
+```js
+// 同步删除指定 key
+uni.removeStorageSync('key')
+
+// 异步删除
+uni.removeStorage({
+  key: 'key',
+  success() { console.log('删除成功') }
+})
+```
+
+### 清空所有数据
+```js
+// 同步清空
+uni.clearStorageSync()
+
+// 异步清空
+uni.clearStorage()
+```
+
+### 使用场景
+| 场景 | 存储 Key | 说明 |
+|------|----------|------|
+| refreshToken | `refresh_token` | 登录凭证持久化 |
+| 用户基本信息 | `user_info` | 昵称、头像等缓存 |
+| 未读消息数 | `unread_count` | 消息红点缓存 |
+| 签到状态 | `checkin_today` | 今日是否已签到 |
+| 答题进度缓存 | `quiz_progress` | 临时答题状态 |
+
+### 页面内状态管理示例
+```js
+// 在 <script setup> 中使用 ref/reactive 管理页面状态
+// 持久化数据通过 uni 存储 API 读写，不依赖 Pinia
+import { ref, onMounted } from 'vue'
+
+const userInfo = ref(null)
+
+onMounted(() => {
+  // 从本地缓存读取
+  const cached = uni.getStorageSync('user_info')
+  if (cached) userInfo.value = cached
+})
+
+function saveUserInfo(data) {
+  userInfo.value = data
+  uni.setStorageSync('user_info', data)
+}
+```
+
 ## 开发规范
 1. Vue 组件统一使用 **`<script setup>`** 组合式 API 写法（ES6 JavaScript）
-2. 底部 Tab 共5个：首页 | 竞猜(预留) | 商城(预留) | 消息 | 我的
-3. 竞猜和商城 Tab MVP 阶段点击后弹出「功能完善中……」提示
-4. 全局导航栏统一样式，左侧返回按钮+中间标题
-5. 骨架屏 + 加载中动画处理加载状态
-6. 统一的空状态组件和错误状态展示
-7. API 请求通过 api/request.js 拦截器统一处理 Token 刷新和401
+2. **禁止使用 Pinia**（`defineStore` / `createPinia`），微信小程序不支持。本地数据缓存统一使用 `uni.setStorageSync` / `uni.getStorageSync` 等 uni 原生存储 API
+3. 底部 Tab 共5个：首页 | 竞猜(预留) | 商城(预留) | 消息 | 我的
+4. 竞猜和商城 Tab MVP 阶段点击后弹出「功能完善中……」提示
+5. 全局导航栏统一样式，左侧返回按钮+中间标题
+6. 骨架屏 + 加载中动画处理加载状态
+7. 统一的空状态组件和错误状态展示
+8. API 请求通过 api/request.js 拦截器统一处理 Token 刷新和401
 
 ## Token 与自动登录
-- accessToken 仅存内存（Vue 响应式变量）
-- refreshToken 通过 uni.setStorageSync 存储
+- accessToken 仅存内存（Vue `ref` 响应式变量，不持久化）
+- refreshToken 通过 `uni.setStorageSync('refresh_token', token)` 存储
+- 读取时通过 `uni.getStorageSync('refresh_token')` 获取
+- 退出登录时通过 `uni.removeStorageSync('refresh_token')` 清除
 - App 启动 → 检查本地 refreshToken → 调用 /auth/refresh → 成功直入首页 / 失败跳登录页
 - 401 拦截 → 自动尝试 refreshToken 刷新 → 成功后重试 / 失败跳登录页
 

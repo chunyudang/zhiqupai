@@ -1,13 +1,13 @@
 {
     "name" : "识趣派",
     "appid" : "__UNI__DD49C19",
-    "description" : "",
+    "description" : "答题类游戏",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
     "vueVersion" : "3",
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wxfa01bf623f354438",
         "setting" : {
             "urlCheck" : false
         },

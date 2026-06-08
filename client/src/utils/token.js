@@ -1,5 +1,5 @@
 // 识趣派 — Token 存储管理
-// accessToken 存 Pinia store（内存），refreshToken 存本地持久化
+// accessToken 存内存（userStore ref），refreshToken 通过 uni.setStorageSync 持久化本地
 
 const REFRESH_TOKEN_KEY = 'refreshToken'
 
