@@ -26,7 +26,7 @@ function App() {
       }}
     >
       <AntdApp>
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />

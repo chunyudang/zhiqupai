@@ -37,7 +37,7 @@ request.interceptors.response.use(
         import('antd').then(({ message }) => {
           message.error('登录已过期，请重新登录')
         })
-        window.location.href = '/login'
+        window.location.href = '/admin/login'
       } else {
         const msg = data?.message || '服务器错误'
         import('antd').then(({ message }) => {
