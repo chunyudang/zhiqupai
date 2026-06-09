@@ -12,7 +12,7 @@ function getUserStore() {
 const BASE_URL = 'http://localhost:3000/api/v1';
 // #endif
 // #ifndef H5
-const BASE_URL = 'http://localhost:3000/api/v1'; //'http://192.168.50.143:3000/api/v1';
+const BASE_URL = 'https://shiqupai-server.onrender.com/api/v1'; //'http://192.168.50.143:3000/api/v1';
 // #endif
 
 // 服务端地址（用于拼接静态资源 URL，如头像）
@@ -20,7 +20,7 @@ const BASE_URL = 'http://localhost:3000/api/v1'; //'http://192.168.50.143:3000/a
 const SERVER_BASE = 'http://localhost:3000';
 // #endif
 // #ifndef H5
-const SERVER_BASE = 'http://localhost:3000'; //'http://192.168.50.143:3000';
+const SERVER_BASE = 'https://shiqupai-server.onrender.com'; //'http://192.168.50.143:3000';
 // #endif
 
 // 上传文件的 base URL（不含 /api/v1 前缀，因 uni.uploadFile 需要完整 URL）
@@ -28,7 +28,7 @@ const SERVER_BASE = 'http://localhost:3000'; //'http://192.168.50.143:3000';
 const UPLOAD_BASE = 'http://localhost:3000';
 // #endif
 // #ifndef H5
-const UPLOAD_BASE = 'http://localhost:3000'; //'http://192.168.50.143:3000';
+const UPLOAD_BASE = 'https://shiqupai-server.onrender.com'; //'http://192.168.50.143:3000';
 // #endif
 
 const AUTH_ERROR_CODES = [10001, 10002, 10003, 10005, 10006, 10007, 10008];
